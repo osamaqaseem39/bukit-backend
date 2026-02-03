@@ -1,0 +1,1307 @@
+{
+  "info": {
+    "name": "Bukit Backend API",
+    "_postman_id": "bukit-backend-api-collection",
+    "description": "Postman collection for the Bukit backend API gateway (apps/api). Defaults to local dev at http://localhost:3000.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "https://bukit-backend.vercel.app"
+    },
+    {
+      "key": "token",
+      "value": ""
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "item": [
+    {
+      "name": "Health",
+      "item": [
+        {
+          "name": "GET /",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/",
+              "host": ["{{base_url}}"],
+              "path": [""]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "POST /auth/login",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@example.com\",\n  \"password\": \"password\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/login",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "login"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "let json = {};\n",
+                  "try {\n",
+                  "  json = pm.response.json();\n",
+                  "} catch (e) {}\n",
+                  "if (json && json.access_token) {\n",
+                  "  pm.collectionVariables.set(\"token\", json.access_token);\n",
+                  "}\n",
+                  "pm.test(\"Login succeeded\", function () {\n",
+                  "  pm.expect(pm.response.code).to.be.oneOf([200, 201]);\n",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "POST /auth/register",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Admin User\",\n  \"email\": \"admin@example.com\",\n  \"password\": \"password\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/register",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "register"]
+            }
+          }
+        },
+        {
+          "name": "POST /auth/register-client",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"user\": {\n    \"name\": \"Client User\",\n    \"email\": \"client@example.com\",\n    \"password\": \"password\"\n  },\n  \"client\": {\n    \"name\": \"Client Name\",\n    \"phone\": \"+1 234 567 890\",\n    \"address\": \"Address here\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/register-client",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "register-client"]
+            }
+          }
+        },
+        {
+          "name": "GET /auth/profile",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/auth/profile",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "profile"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Users (Admin)",
+      "item": [
+        {
+          "name": "GET /users",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/users",
+              "host": ["{{base_url}}"],
+              "path": ["users"]
+            }
+          }
+        },
+        {
+          "name": "GET /users/:id",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/users/{{userId}}",
+              "host": ["{{base_url}}"],
+              "path": ["users", "{{userId}}"]
+            }
+          }
+        },
+        {
+          "name": "PATCH /users/:id/modules",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"modules\": [\"dashboard-overview\", \"gaming\", \"users\"]\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/users/{{userId}}/modules",
+              "host": ["{{base_url}}"],
+              "path": ["users", "{{userId}}", "modules"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Clients",
+      "item": [
+        {
+          "name": "POST /clients",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Client Name\",\n  \"phone\": \"+1 234 567 890\",\n  \"address\": \"Address here\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/clients",
+              "host": ["{{base_url}}"],
+              "path": ["clients"]
+            }
+          }
+        },
+        {
+          "name": "GET /clients",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/clients",
+              "host": ["{{base_url}}"],
+              "path": ["clients"]
+            }
+          }
+        },
+        {
+          "name": "GET /clients/statistics",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/clients/statistics",
+              "host": ["{{base_url}}"],
+              "path": ["clients", "statistics"]
+            }
+          }
+        },
+        {
+          "name": "GET /clients/user/:userId",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/clients/user/{{userId}}",
+              "host": ["{{base_url}}"],
+              "path": ["clients", "user", "{{userId}}"]
+            }
+          }
+        },
+        {
+          "name": "GET /clients/:id",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/clients/{{clientId}}",
+              "host": ["{{base_url}}"],
+              "path": ["clients", "{{clientId}}"]
+            }
+          }
+        },
+        {
+          "name": "PATCH /clients/:id",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Updated Client Name\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/clients/{{clientId}}",
+              "host": ["{{base_url}}"],
+              "path": ["clients", "{{clientId}}"]
+            }
+          }
+        },
+        {
+          "name": "POST /clients/:id/approve",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/clients/{{clientId}}/approve",
+              "host": ["{{base_url}}"],
+              "path": ["clients", "{{clientId}}", "approve"]
+            }
+          }
+        },
+        {
+          "name": "POST /clients/:id/reject",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"reason\": \"Incomplete information\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/clients/{{clientId}}/reject",
+              "host": ["{{base_url}}"],
+              "path": ["clients", "{{clientId}}", "reject"]
+            }
+          }
+        },
+        {
+          "name": "POST /clients/:id/suspend",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"reason\": \"Violation of terms\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/clients/{{clientId}}/suspend",
+              "host": ["{{base_url}}"],
+              "path": ["clients", "{{clientId}}", "suspend"]
+            }
+          }
+        },
+        {
+          "name": "POST /clients/:id/activate",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/clients/{{clientId}}/activate",
+              "host": ["{{base_url}}"],
+              "path": ["clients", "{{clientId}}", "activate"]
+            }
+          }
+        },
+        {
+          "name": "PATCH /clients/:id/commission",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"rate\": 0.1\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/clients/{{clientId}}/commission",
+              "host": ["{{base_url}}"],
+              "path": ["clients", "{{clientId}}", "commission"]
+            }
+          }
+        },
+        {
+          "name": "DELETE /clients/:id",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/clients/{{clientId}}",
+              "host": ["{{base_url}}"],
+              "path": ["clients", "{{clientId}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Locations",
+      "item": [
+        {
+          "name": "POST /locations",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"client_id\": \"{{clientId}}\",\n  \"name\": \"Location Name\",\n  \"address\": \"Address here\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/locations",
+              "host": ["{{base_url}}"],
+              "path": ["locations"]
+            }
+          }
+        },
+        {
+          "name": "GET /locations",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/locations?clientId={{clientId}}",
+              "host": ["{{base_url}}"],
+              "path": ["locations"],
+              "query": [
+                {
+                  "key": "clientId",
+                  "value": "{{clientId}}"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "GET /locations/:id",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/locations/{{locationId}}",
+              "host": ["{{base_url}}"],
+              "path": ["locations", "{{locationId}}"]
+            }
+          }
+        },
+        {
+          "name": "PATCH /locations/:id",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Updated Location Name\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/locations/{{locationId}}",
+              "host": ["{{base_url}}"],
+              "path": ["locations", "{{locationId}}"]
+            }
+          }
+        },
+        {
+          "name": "DELETE /locations/:id",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/locations/{{locationId}}",
+              "host": ["{{base_url}}"],
+              "path": ["locations", "{{locationId}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Facilities (per Location)",
+      "item": [
+        {
+          "name": "POST /locations/:locationId/facilities",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Gaming PC #1\",\n  \"type\": \"gaming-pc\",\n  \"status\": \"active\",\n  \"capacity\": 1,\n  \"metadata\": {\n    \"specs\": \"RTX 4070, 32GB RAM\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/locations/{{locationId}}/facilities",
+              "host": ["{{base_url}}"],
+              "path": ["locations", "{{locationId}}", "facilities"]
+            }
+          }
+        },
+        {
+          "name": "GET /locations/:locationId/facilities",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/locations/{{locationId}}/facilities",
+              "host": ["{{base_url}}"],
+              "path": ["locations", "{{locationId}}", "facilities"]
+            }
+          }
+        },
+        {
+          "name": "GET /locations/:locationId/facilities/:id",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/locations/{{locationId}}/facilities/{{facilityId}}",
+              "host": ["{{base_url}}"],
+              "path": ["locations", "{{locationId}}", "facilities", "{{facilityId}}"]
+            }
+          }
+        },
+        {
+          "name": "PATCH /locations/:locationId/facilities/:id",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"maintenance\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/locations/{{locationId}}/facilities/{{facilityId}}",
+              "host": ["{{base_url}}"],
+              "path": ["locations", "{{locationId}}", "facilities", "{{facilityId}}"]
+            }
+          }
+        },
+        {
+          "name": "DELETE /locations/:locationId/facilities/:id",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/locations/{{locationId}}/facilities/{{facilityId}}",
+              "host": ["{{base_url}}"],
+              "path": ["locations", "{{locationId}}", "facilities", "{{facilityId}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Gaming",
+      "item": [
+        {
+          "name": "POST /gaming/register",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"client\": {\n    \"name\": \"Gaming Client\"\n  },\n  \"admin\": {\n    \"name\": \"Admin User\",\n    \"email\": \"admin@example.com\",\n    \"password\": \"password\"\n  },\n  \"gaming_center\": {\n    \"name\": \"Gaming Center Name\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/gaming/register",
+              "host": ["{{base_url}}"],
+              "path": ["gaming", "register"]
+            }
+          }
+        },
+        {
+          "name": "POST /gaming",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"client_id\": \"{{clientId}}\",\n  \"name\": \"Gaming Center Name\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/gaming",
+              "host": ["{{base_url}}"],
+              "path": ["gaming"]
+            }
+          }
+        },
+        {
+          "name": "GET /gaming",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/gaming?clientId={{clientId}}",
+              "host": ["{{base_url}}"],
+              "path": ["gaming"],
+              "query": [
+                {
+                  "key": "clientId",
+                  "value": "{{clientId}}"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "GET /gaming/:id",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/gaming/{{gamingId}}",
+              "host": ["{{base_url}}"],
+              "path": ["gaming", "{{gamingId}}"]
+            }
+          }
+        },
+        {
+          "name": "PATCH /gaming/:id",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Updated Gaming Center Name\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/gaming/{{gamingId}}",
+              "host": ["{{base_url}}"],
+              "path": ["gaming", "{{gamingId}}"]
+            }
+          }
+        },
+        {
+          "name": "DELETE /gaming/:id",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/gaming/{{gamingId}}",
+              "host": ["{{base_url}}"],
+              "path": ["gaming", "{{gamingId}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Table Tennis",
+      "item": [
+        {
+          "name": "POST /table-tennis/register",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"client\": {\n    \"name\": \"Table Tennis Client\"\n  },\n  \"admin\": {\n    \"name\": \"Admin User\",\n    \"email\": \"admin@example.com\",\n    \"password\": \"password\"\n  },\n  \"facility\": {\n    \"name\": \"Table Tennis Facility Name\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/table-tennis/register",
+              "host": ["{{base_url}}"],
+              "path": ["table-tennis", "register"]
+            }
+          }
+        },
+        {
+          "name": "POST /table-tennis",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"client_id\": \"{{clientId}}\",\n  \"name\": \"Table Tennis Facility Name\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/table-tennis",
+              "host": ["{{base_url}}"],
+              "path": ["table-tennis"]
+            }
+          }
+        },
+        {
+          "name": "GET /table-tennis",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/table-tennis?clientId={{clientId}}",
+              "host": ["{{base_url}}"],
+              "path": ["table-tennis"],
+              "query": [
+                {
+                  "key": "clientId",
+                  "value": "{{clientId}}"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "GET /table-tennis/:id",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/table-tennis/{{tableTennisId}}",
+              "host": ["{{base_url}}"],
+              "path": ["table-tennis", "{{tableTennisId}}"]
+            }
+          }
+        },
+        {
+          "name": "PATCH /table-tennis/:id",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Updated Table Tennis Facility Name\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/table-tennis/{{tableTennisId}}",
+              "host": ["{{base_url}}"],
+              "path": ["table-tennis", "{{tableTennisId}}"]
+            }
+          }
+        },
+        {
+          "name": "DELETE /table-tennis/:id",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/table-tennis/{{tableTennisId}}",
+              "host": ["{{base_url}}"],
+              "path": ["table-tennis", "{{tableTennisId}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Snooker",
+      "item": [
+        {
+          "name": "POST /snooker/register",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"client\": {\n    \"name\": \"Snooker Client\"\n  },\n  \"admin\": {\n    \"name\": \"Admin User\",\n    \"email\": \"admin@example.com\",\n    \"password\": \"password\"\n  },\n  \"facility\": {\n    \"name\": \"Snooker Facility Name\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/snooker/register",
+              "host": ["{{base_url}}"],
+              "path": ["snooker", "register"]
+            }
+          }
+        },
+        {
+          "name": "POST /snooker",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"client_id\": \"{{clientId}}\",\n  \"name\": \"Snooker Facility Name\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/snooker",
+              "host": ["{{base_url}}"],
+              "path": ["snooker"]
+            }
+          }
+        },
+        {
+          "name": "GET /snooker",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/snooker?clientId={{clientId}}",
+              "host": ["{{base_url}}"],
+              "path": ["snooker"],
+              "query": [
+                {
+                  "key": "clientId",
+                  "value": "{{clientId}}"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "GET /snooker/:id",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/snooker/{{snookerId}}",
+              "host": ["{{base_url}}"],
+              "path": ["snooker", "{{snookerId}}"]
+            }
+          }
+        },
+        {
+          "name": "PATCH /snooker/:id",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Updated Snooker Facility Name\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/snooker/{{snookerId}}",
+              "host": ["{{base_url}}"],
+              "path": ["snooker", "{{snookerId}}"]
+            }
+          }
+        },
+        {
+          "name": "DELETE /snooker/:id",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/snooker/{{snookerId}}",
+              "host": ["{{base_url}}"],
+              "path": ["snooker", "{{snookerId}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Padel",
+      "item": [
+        {
+          "name": "POST /padel/register",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"client\": {\n    \"name\": \"Padel Client\"\n  },\n  \"admin\": {\n    \"name\": \"Admin User\",\n    \"email\": \"admin@example.com\",\n    \"password\": \"password\"\n  },\n  \"facility\": {\n    \"name\": \"Padel Facility Name\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/padel/register",
+              "host": ["{{base_url}}"],
+              "path": ["padel", "register"]
+            }
+          }
+        },
+        {
+          "name": "POST /padel",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"client_id\": \"{{clientId}}\",\n  \"name\": \"Padel Facility Name\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/padel",
+              "host": ["{{base_url}}"],
+              "path": ["padel"]
+            }
+          }
+        },
+        {
+          "name": "GET /padel",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/padel?clientId={{clientId}}",
+              "host": ["{{base_url}}"],
+              "path": ["padel"],
+              "query": [
+                {
+                  "key": "clientId",
+                  "value": "{{clientId}}"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "GET /padel/:id",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/padel/{{padelId}}",
+              "host": ["{{base_url}}"],
+              "path": ["padel", "{{padelId}}"]
+            }
+          }
+        },
+        {
+          "name": "PATCH /padel/:id",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Updated Padel Facility Name\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/padel/{{padelId}}",
+              "host": ["{{base_url}}"],
+              "path": ["padel", "{{padelId}}"]
+            }
+          }
+        },
+        {
+          "name": "DELETE /padel/:id",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/padel/{{padelId}}",
+              "host": ["{{base_url}}"],
+              "path": ["padel", "{{padelId}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Futsal Turf",
+      "item": [
+        {
+          "name": "POST /futsal-turf/register",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"client\": {\n    \"name\": \"Futsal Turf Client\"\n  },\n  \"admin\": {\n    \"name\": \"Admin User\",\n    \"email\": \"admin@example.com\",\n    \"password\": \"password\"\n  },\n  \"facility\": {\n    \"name\": \"Futsal Turf Facility Name\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/futsal-turf/register",
+              "host": ["{{base_url}}"],
+              "path": ["futsal-turf", "register"]
+            }
+          }
+        },
+        {
+          "name": "POST /futsal-turf",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"client_id\": \"{{clientId}}\",\n  \"name\": \"Futsal Turf Facility Name\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/futsal-turf",
+              "host": ["{{base_url}}"],
+              "path": ["futsal-turf"]
+            }
+          }
+        },
+        {
+          "name": "GET /futsal-turf",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/futsal-turf?clientId={{clientId}}",
+              "host": ["{{base_url}}"],
+              "path": ["futsal-turf"],
+              "query": [
+                {
+                  "key": "clientId",
+                  "value": "{{clientId}}"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "GET /futsal-turf/:id",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/futsal-turf/{{futsalTurfId}}",
+              "host": ["{{base_url}}"],
+              "path": ["futsal-turf", "{{futsalTurfId}}"]
+            }
+          }
+        },
+        {
+          "name": "PATCH /futsal-turf/:id",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Updated Futsal Turf Facility Name\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/futsal-turf/{{futsalTurfId}}",
+              "host": ["{{base_url}}"],
+              "path": ["futsal-turf", "{{futsalTurfId}}"]
+            }
+          }
+        },
+        {
+          "name": "DELETE /futsal-turf/:id",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/futsal-turf/{{futsalTurfId}}",
+              "host": ["{{base_url}}"],
+              "path": ["futsal-turf", "{{futsalTurfId}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Cricket",
+      "item": [
+        {
+          "name": "POST /cricket/register",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"client\": {\n    \"name\": \"Cricket Client\"\n  },\n  \"admin\": {\n    \"name\": \"Admin User\",\n    \"email\": \"admin@example.com\",\n    \"password\": \"password\"\n  },\n  \"facility\": {\n    \"name\": \"Cricket Facility Name\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/cricket/register",
+              "host": ["{{base_url}}"],
+              "path": ["cricket", "register"]
+            }
+          }
+        },
+        {
+          "name": "POST /cricket",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"client_id\": \"{{clientId}}\",\n  \"name\": \"Cricket Facility Name\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/cricket",
+              "host": ["{{base_url}}"],
+              "path": ["cricket"]
+            }
+          }
+        },
+        {
+          "name": "GET /cricket",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/cricket?clientId={{clientId}}",
+              "host": ["{{base_url}}"],
+              "path": ["cricket"],
+              "query": [
+                {
+                  "key": "clientId",
+                  "value": "{{clientId}}"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "GET /cricket/:id",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/cricket/{{cricketId}}",
+              "host": ["{{base_url}}"],
+              "path": ["cricket", "{{cricketId}}"]
+            }
+          }
+        },
+        {
+          "name": "PATCH /cricket/:id",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Updated Cricket Facility Name\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/cricket/{{cricketId}}",
+              "host": ["{{base_url}}"],
+              "path": ["cricket", "{{cricketId}}"]
+            }
+          }
+        },
+        {
+          "name": "DELETE /cricket/:id",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/cricket/{{cricketId}}",
+              "host": ["{{base_url}}"],
+              "path": ["cricket", "{{cricketId}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Bookings",
+      "item": [
+        {
+          "name": "POST /bookings",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"location_id\": \"{{locationId}}\",\n  \"facility_id\": \"{{facilityId}}\",\n  \"start_time\": \"2025-01-01T10:00:00.000Z\",\n  \"end_time\": \"2025-01-01T11:00:00.000Z\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/bookings",
+              "host": ["{{base_url}}"],
+              "path": ["bookings"]
+            }
+          }
+        },
+        {
+          "name": "GET /bookings",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/bookings",
+              "host": ["{{base_url}}"],
+              "path": ["bookings"]
+            }
+          }
+        },
+        {
+          "name": "GET /bookings/:id",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/bookings/{{bookingId}}",
+              "host": ["{{base_url}}"],
+              "path": ["bookings", "{{bookingId}}"]
+            }
+          }
+        },
+        {
+          "name": "PATCH /bookings/:id",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"start_time\": \"2025-01-01T12:00:00.000Z\",\n  \"end_time\": \"2025-01-01T13:00:00.000Z\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/bookings/{{bookingId}}",
+              "host": ["{{base_url}}"],
+              "path": ["bookings", "{{bookingId}}"]
+            }
+          }
+        },
+        {
+          "name": "PATCH /bookings/:id/cancel",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/bookings/{{bookingId}}/cancel",
+              "host": ["{{base_url}}"],
+              "path": ["bookings", "{{bookingId}}", "cancel"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
+

@@ -10,6 +10,7 @@ import { UsersModule } from './users/users.module';
 import { ClientsModule } from './clients/clients.module';
 import { LocalStrategy } from './strategies/local.strategy';
 import { JwtStrategy } from './strategies/jwt.strategy';
+import { BookingsModule } from './bookings/bookings.module';
 
 @Module({
   imports: [
@@ -28,11 +29,16 @@ import { JwtStrategy } from './strategies/jwt.strategy';
         database: configService.get<string>('DB_DATABASE'),
         autoLoadEntities: true,
         synchronize: true, // DEV only, disable in production
+        ssl:
+          configService.get<string>('DB_SSL') === 'true'
+            ? { rejectUnauthorized: false }
+            : false,
       }),
       inject: [ConfigService],
     }),
     UsersModule,
     ClientsModule,
+    BookingsModule,
     PassportModule,
     JwtModule.registerAsync({
       imports: [ConfigModule],
