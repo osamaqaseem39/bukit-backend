@@ -1,0 +1,86 @@
+{
+  "$schema": "https://json.schemastore.org/nest-cli",
+  "collection": "@nestjs/schematics",
+  "sourceRoot": "apps/api/src",
+  "compilerOptions": {
+    "deleteOutDir": true,
+    "webpack": true,
+    "tsConfigPath": "apps/api/tsconfig.app.json"
+  },
+  "monorepo": true,
+  "root": "apps/api",
+  "projects": {
+    "auth": {
+      "type": "application",
+      "root": "apps/auth",
+      "entryFile": "main",
+      "sourceRoot": "apps/auth/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/auth/tsconfig.app.json"
+      }
+    },
+    "api": {
+      "type": "application",
+      "root": "apps/api",
+      "entryFile": "main",
+      "sourceRoot": "apps/api/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/api/tsconfig.app.json"
+      }
+    },
+    "gaming": {
+      "type": "application",
+      "root": "apps/gaming",
+      "entryFile": "main",
+      "sourceRoot": "apps/gaming/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/gaming/tsconfig.app.json"
+      }
+    },
+    "cricket": {
+      "type": "application",
+      "root": "apps/cricket",
+      "entryFile": "main",
+      "sourceRoot": "apps/cricket/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/cricket/tsconfig.app.json"
+      }
+    },
+    "futsal-turf": {
+      "type": "application",
+      "root": "apps/futsal-turf",
+      "entryFile": "main",
+      "sourceRoot": "apps/futsal-turf/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/futsal-turf/tsconfig.app.json"
+      }
+    },
+    "padel": {
+      "type": "application",
+      "root": "apps/padel",
+      "entryFile": "main",
+      "sourceRoot": "apps/padel/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/padel/tsconfig.app.json"
+      }
+    },
+    "snooker": {
+      "type": "application",
+      "root": "apps/snooker",
+      "entryFile": "main",
+      "sourceRoot": "apps/snooker/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/snooker/tsconfig.app.json"
+      }
+    },
+    "table-tennis": {
+      "type": "application",
+      "root": "apps/table-tennis",
+      "entryFile": "main",
+      "sourceRoot": "apps/table-tennis/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/table-tennis/tsconfig.app.json"
+      }
+    }
+  }
+}

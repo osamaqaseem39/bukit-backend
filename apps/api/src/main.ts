@@ -1,0 +1,44 @@
+import { NestFactory } from '@nestjs/core';
+import { NestExpressApplication } from '@nestjs/platform-express';
+import { AppModule } from './app.module';
+import { createProxyMiddleware } from 'http-proxy-middleware';
+
+async function bootstrap() {
+  const app = await NestFactory.create<NestExpressApplication>(AppModule);
+
+  const server = app.getHttpAdapter().getInstance();
+
+  const authTarget =
+    process.env.AUTH_SERVICE_URL ?? 'http://localhost:3001';
+  const gamingTarget =
+    process.env.GAMING_SERVICE_URL ?? 'http://localhost:3002';
+
+  // Proxy auth-related routes to the auth service
+  server.use(
+    ['/auth', '/locations', '/uploads'],
+    createProxyMiddleware({
+      target: authTarget,
+      changeOrigin: true,
+      pathRewrite: {
+        // Keep paths as-is; just forward
+      },
+      logLevel: 'warn',
+    }),
+  );
+
+  // Proxy gaming routes to the gaming service
+  server.use(
+    ['/gaming'],
+    createProxyMiddleware({
+      target: gamingTarget,
+      changeOrigin: true,
+      pathRewrite: {
+        // Keep paths as-is; just forward
+      },
+      logLevel: 'warn',
+    }),
+  );
+
+  await app.listen(process.env.PORT ?? 3000);
+}
+bootstrap();
