@@ -22,7 +22,6 @@ async function bootstrap() {
       pathRewrite: {
         // Keep paths as-is; just forward
       },
-      logLevel: 'warn',
     }),
   );
 
@@ -35,7 +34,6 @@ async function bootstrap() {
       pathRewrite: {
         // Keep paths as-is; just forward
       },
-      logLevel: 'warn',
     }),
   );
 
