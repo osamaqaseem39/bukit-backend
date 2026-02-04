@@ -3,17 +3,17 @@ import { NestExpressApplication } from '@nestjs/platform-express';
 import { AppModule } from './app.module';
 import { createProxyMiddleware } from 'http-proxy-middleware';
 
+const CORS_ALLOWED_ORIGINS: string[] = [
+  'http://localhost:3000', // Local web app
+  'http://localhost:5173', // Local admin dashboard
+  'https://bukit-dashboard.vercel.app', // Deployed admin dashboard
+];
+
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
 
-  const allowedOrigins = [
-    process.env.CORS_ORIGIN_WEB,
-    process.env.CORS_ORIGIN_ADMIN,
-    process.env.CORS_ORIGIN_ADMIN_PROD,
-  ].filter((origin): origin is string => Boolean(origin));
-
   app.enableCors({
-    origin: allowedOrigins,
+    origin: CORS_ALLOWED_ORIGINS,
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
     credentials: true,
   });
