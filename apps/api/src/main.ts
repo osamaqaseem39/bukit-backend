@@ -55,6 +55,129 @@ async function bootstrap() {
 
   const server = app.getHttpAdapter().getInstance();
 
+  // Basic health check endpoints
+  server.get('/health', (_req, res) => {
+    res.json({
+      status: 'ok',
+      service: 'api-gateway',
+      timestamp: new Date().toISOString(),
+    });
+  });
+
+  server.get('/health/html', (_req, res) => {
+    res.type('html').send(`
+      <!DOCTYPE html>
+      <html lang="en">
+        <head>
+          <meta charset="UTF-8" />
+          <title>Bukit API Health</title>
+          <meta name="viewport" content="width=device-width, initial-scale=1" />
+          <style>
+            body {
+              margin: 0;
+              padding: 0;
+              font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+              background: radial-gradient(circle at top left, #0ea5e9, #1e293b 55%, #020617);
+              color: #e5e7eb;
+              min-height: 100vh;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+            }
+            .card {
+              background: rgba(15, 23, 42, 0.9);
+              border-radius: 16px;
+              padding: 24px 28px;
+              max-width: 420px;
+              width: 100%;
+              box-shadow: 0 20px 40px rgba(15, 23, 42, 0.6);
+              border: 1px solid rgba(148, 163, 184, 0.35);
+              backdrop-filter: blur(18px);
+            }
+            .badge {
+              display: inline-flex;
+              align-items: center;
+              gap: 6px;
+              padding: 4px 10px;
+              border-radius: 999px;
+              background: rgba(16, 185, 129, 0.16);
+              color: #6ee7b7;
+              font-size: 11px;
+              text-transform: uppercase;
+              letter-spacing: 0.08em;
+              font-weight: 600;
+            }
+            .dot {
+              width: 8px;
+              height: 8px;
+              border-radius: 999px;
+              background: #22c55e;
+              box-shadow: 0 0 0 6px rgba(34, 197, 94, 0.22);
+            }
+            h1 {
+              margin: 14px 0 4px;
+              font-size: 22px;
+              font-weight: 600;
+              letter-spacing: -0.02em;
+            }
+            .subtitle {
+              font-size: 13px;
+              color: #9ca3af;
+              margin-bottom: 16px;
+            }
+            .row {
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+              gap: 12px;
+              font-size: 12px;
+              color: #9ca3af;
+            }
+            .row + .row {
+              margin-top: 4px;
+            }
+            .label {
+              text-transform: uppercase;
+              letter-spacing: 0.08em;
+              font-weight: 500;
+              font-size: 11px;
+              color: #6b7280;
+            }
+            .value {
+              font-weight: 500;
+              color: #e5e7eb;
+            }
+            .muted {
+              color: #9ca3af;
+            }
+          </style>
+        </head>
+        <body>
+          <main class="card">
+            <div class="badge">
+              <span class="dot"></span>
+              <span>Healthy</span>
+            </div>
+            <h1>Bukit API Gateway</h1>
+            <p class="subtitle">The API gateway is up and responding.</p>
+            <div class="row">
+              <span class="label">Service</span>
+              <span class="value">api-gateway</span>
+            </div>
+            <div class="row">
+              <span class="label">Status</span>
+              <span class="value">ok</span>
+            </div>
+            <div class="row">
+              <span class="label">Time (UTC)</span>
+              <span class="muted">${new Date().toISOString()}</span>
+            </div>
+          </main>
+        </body>
+      </html>
+    `);
+  });
+
   const authTarget =
     process.env.AUTH_SERVICE_URL ?? 'http://localhost:3001';
   const gamingTarget =
