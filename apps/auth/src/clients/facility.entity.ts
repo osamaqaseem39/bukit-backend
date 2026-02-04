@@ -11,6 +11,7 @@ import { Location } from './location.entity';
 
 export enum FacilityType {
   GAMING_PC = 'gaming-pc',
+  VR = 'vr',
   PS4 = 'ps4',
   PS5 = 'ps5',
   XBOX = 'xbox',
