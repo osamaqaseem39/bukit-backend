@@ -6,12 +6,14 @@ import { createProxyMiddleware } from 'http-proxy-middleware';
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
 
+  const allowedOrigins = [
+    process.env.CORS_ORIGIN_WEB,
+    process.env.CORS_ORIGIN_ADMIN,
+    process.env.CORS_ORIGIN_ADMIN_PROD,
+  ].filter((origin): origin is string => Boolean(origin));
+
   app.enableCors({
-    origin: [
-      process.env.CORS_ORIGIN_WEB,
-      process.env.CORS_ORIGIN_ADMIN,
-      process.env.CORS_ORIGIN_ADMIN_PROD,
-    ].filter(Boolean),
+    origin: allowedOrigins,
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
     credentials: true,
   });
