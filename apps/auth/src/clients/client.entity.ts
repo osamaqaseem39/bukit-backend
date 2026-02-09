@@ -100,7 +100,7 @@ export class Client {
   commission_rate: number; // Platform commission percentage
 
   @Column({ type: 'text', nullable: true })
-  rejection_reason: string;
+  rejection_reason: string | null;
 
   @Column({ type: 'timestamp', nullable: true })
   approved_at: Date;

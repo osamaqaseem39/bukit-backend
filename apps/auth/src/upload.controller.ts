@@ -11,7 +11,11 @@ import { diskStorage } from 'multer';
 import { extname, join } from 'path';
 import { randomBytes } from 'crypto';
 
-function editFileName(_req: any, file: Express.Multer.File, callback: any) {
+function editFileName(
+  _req: any,
+  file: { originalname: string },
+  callback: (error: Error | null, filename: string) => void,
+) {
   const name = randomBytes(16).toString('hex');
   const fileExtName = extname(file.originalname);
   callback(null, `${name}${fileExtName}`);
@@ -32,7 +36,7 @@ export class UploadController {
       },
     }),
   )
-  uploadImage(@UploadedFile() file: Express.Multer.File) {
+  uploadImage(@UploadedFile() file: { filename: string; size: number; mimetype: string }) {
     return {
       filename: file.filename,
       url: `/uploads/${file.filename}`,

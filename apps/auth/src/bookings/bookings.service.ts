@@ -91,12 +91,14 @@ export class BookingsService {
     const booking = await this.findOne(id, user);
     Object.assign(booking, {
       ...updateBookingDto,
-      start_time: updateBookingDto.start_time
-        ? new Date(updateBookingDto.start_time)
-        : booking.start_time,
-      end_time: updateBookingDto.end_time
-        ? new Date(updateBookingDto.end_time)
-        : booking.end_time,
+      start_time:
+        updateBookingDto.start_time !== undefined
+          ? new Date(updateBookingDto.start_time as string | Date)
+          : booking.start_time,
+      end_time:
+        updateBookingDto.end_time !== undefined
+          ? new Date(updateBookingDto.end_time as string | Date)
+          : booking.end_time,
     });
     return await this.bookingRepository.save(booking);
   }
