@@ -31,7 +31,24 @@ export class AuthController {
 
   @Post('register')
   async register(@Body() createUserDto: CreateUserDto) {
-    return this.authService.register(createUserDto);
+    const startTime = Date.now();
+    console.log(`[AuthController] Registration request received for: ${createUserDto.email}`);
+    
+    try {
+      const result = await this.authService.register(createUserDto);
+      const duration = Date.now() - startTime;
+      console.log(`[AuthController] Registration completed in ${duration}ms for: ${createUserDto.email}`);
+      return result;
+    } catch (error) {
+      const duration = Date.now() - startTime;
+      console.error(`[AuthController] Registration failed after ${duration}ms for ${createUserDto.email}:`, error);
+      // Re-throw HTTP exceptions as-is
+      if (error.status) {
+        throw error;
+      }
+      // Log unexpected errors
+      throw error;
+    }
   }
 
   @Post('register-client')

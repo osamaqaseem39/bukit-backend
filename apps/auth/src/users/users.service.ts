@@ -15,24 +15,44 @@ export class UsersService {
   async create(createUserDto: CreateUserDto): Promise<User> {
     const { email, password, name, role } = createUserDto;
 
-    const existingUser = await this.usersRepository.findOne({
-      where: { email },
-    });
-    if (existingUser) {
-      throw new ConflictException('User with this email already exists');
+    try {
+      console.log(`[UsersService] Creating user with email: ${email}`);
+      
+      // Check for existing user
+      const existingUser = await this.usersRepository.findOne({
+        where: { email },
+      });
+      
+      if (existingUser) {
+        throw new ConflictException('User with this email already exists');
+      }
+
+      console.log(`[UsersService] Hashing password for user: ${email}`);
+      // Use fewer rounds (8 instead of default 10) for faster hashing in serverless environments
+      const salt = await bcrypt.genSalt(8);
+      const password_hash = await bcrypt.hash(password, salt);
+
+      const user = this.usersRepository.create({
+        name,
+        email,
+        password_hash,
+        role,
+      });
+
+      console.log(`[UsersService] Saving user to database: ${email}`);
+      const savedUser = await this.usersRepository.save(user);
+      console.log(`[UsersService] User created successfully: ${email}`);
+
+      return savedUser;
+    } catch (error) {
+      // Re-throw known exceptions
+      if (error instanceof ConflictException) {
+        throw error;
+      }
+      // Log and re-throw unexpected errors
+      console.error(`[UsersService] User creation error for ${email}:`, error);
+      throw error;
     }
-
-    const salt = await bcrypt.genSalt();
-    const password_hash = await bcrypt.hash(password, salt);
-
-    const user = this.usersRepository.create({
-      name,
-      email,
-      password_hash,
-      role,
-    });
-
-    return this.usersRepository.save(user);
   }
 
   async findOneByEmail(email: string): Promise<User | null> {

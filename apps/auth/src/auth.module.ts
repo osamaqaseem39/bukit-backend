@@ -33,6 +33,16 @@ import { BookingsModule } from './bookings/bookings.module';
           configService.get<string>('DB_SSL') === 'true'
             ? { rejectUnauthorized: false }
             : false,
+        // Connection pool settings for serverless environments
+        extra: {
+          max: 5, // Maximum number of connections in the pool
+          min: 1, // Minimum number of connections in the pool
+          idleTimeoutMillis: 30000, // Close idle connections after 30 seconds
+          connectionTimeoutMillis: 10000, // Timeout after 10 seconds if connection cannot be established
+        },
+        // Connection retry settings
+        retryAttempts: 3,
+        retryDelay: 3000,
       }),
       inject: [ConfigService],
     }),

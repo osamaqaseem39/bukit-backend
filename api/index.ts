@@ -132,10 +132,28 @@ export default async function handler(
   req: VercelRequest,
   res: VercelResponse,
 ) {
+  // Set a timeout to ensure response is sent before Vercel's timeout
+  const timeout = setTimeout(() => {
+    if (!res.headersSent) {
+      res.status(504).json({
+        error: 'Gateway Timeout',
+        message: 'Request took too long to process',
+      });
+    }
+  }, 55000); // 55 seconds (5 seconds before Vercel's 60s timeout)
+
   try {
     const expressApp = await bootstrap();
+    
+    // Handle the request with proper cleanup
     expressApp(req, res);
+    
+    // Clear timeout if request completes
+    res.on('finish', () => {
+      clearTimeout(timeout);
+    });
   } catch (error) {
+    clearTimeout(timeout);
     console.error('Handler error:', error);
     if (!res.headersSent) {
       res.status(500).json({
