@@ -57,66 +57,71 @@ async function bootstrap() {
 
     const server = cachedApp.getHttpAdapter().getInstance();
 
-    const authTarget =
-      process.env.AUTH_SERVICE_URL ?? 'http://localhost:3001';
-    const gamingTarget =
-      process.env.GAMING_SERVICE_URL ?? 'http://localhost:3002';
+    const authTarget = process.env.AUTH_SERVICE_URL;
+    const gamingTarget = process.env.GAMING_SERVICE_URL;
 
-    // Warn if using localhost (won't work on Vercel)
-    if (authTarget.includes('localhost') || authTarget.includes('127.0.0.1')) {
-      console.warn(
-        'WARNING: AUTH_SERVICE_URL is set to localhost. This will not work on Vercel. Please set AUTH_SERVICE_URL environment variable.',
+    // Only proxy auth routes if AUTH_SERVICE_URL is explicitly set and not localhost
+    // Otherwise, AuthModule handles routes directly
+    if (
+      authTarget &&
+      !authTarget.includes('localhost') &&
+      !authTarget.includes('127.0.0.1')
+    ) {
+      console.log(`Proxying auth routes to external service: ${authTarget}`);
+      server.use(
+        ['/auth', '/locations', '/uploads'],
+        createProxyMiddleware({
+          target: authTarget,
+          changeOrigin: true,
+          pathRewrite: {},
+          timeout: 50000,
+          proxyTimeout: 50000,
+          onError: (err, req, res) => {
+            console.error('Proxy error:', err.message);
+            if (!res.headersSent) {
+              res.status(502).json({
+                error: 'Bad Gateway',
+                message: 'Unable to connect to auth service',
+                target: authTarget,
+              });
+            }
+          },
+        }),
+      );
+    } else {
+      console.log(
+        'AuthModule imported directly - auth routes handled by NestJS (no proxy)',
       );
     }
-    if (gamingTarget.includes('localhost') || gamingTarget.includes('127.0.0.1')) {
-      console.warn(
-        'WARNING: GAMING_SERVICE_URL is set to localhost. This will not work on Vercel. Please set GAMING_SERVICE_URL environment variable.',
+
+    // Only proxy gaming routes if GAMING_SERVICE_URL is explicitly set and not localhost
+    if (
+      gamingTarget &&
+      !gamingTarget.includes('localhost') &&
+      !gamingTarget.includes('127.0.0.1')
+    ) {
+      console.log(`Proxying gaming routes to external service: ${gamingTarget}`);
+      server.use(
+        ['/gaming'],
+        createProxyMiddleware({
+          target: gamingTarget,
+          changeOrigin: true,
+          pathRewrite: {},
+          timeout: 50000,
+          proxyTimeout: 50000,
+          onError: (err, req, res) => {
+            console.error('Proxy error:', err.message);
+            if (!res.headersSent) {
+              res.status(502).json({
+                error: 'Bad Gateway',
+                message: 'Unable to connect to gaming service',
+                target: gamingTarget,
+              });
+            }
+          },
+        }),
       );
     }
-
-    // Proxy auth-related routes to the auth service
-    server.use(
-      ['/auth', '/locations', '/uploads'],
-      createProxyMiddleware({
-        target: authTarget,
-        changeOrigin: true,
-        pathRewrite: {},
-        timeout: 30000,
-        proxyTimeout: 30000,
-        onError: (err, req, res) => {
-          console.error('Proxy error:', err.message);
-          if (!res.headersSent) {
-            res.status(502).json({
-              error: 'Bad Gateway',
-              message: 'Unable to connect to auth service',
-              target: authTarget,
-            });
-          }
-        },
-      }),
-    );
-
-    // Proxy gaming routes to the gaming service
-    server.use(
-      ['/gaming'],
-      createProxyMiddleware({
-        target: gamingTarget,
-        changeOrigin: true,
-        pathRewrite: {},
-        timeout: 30000,
-        proxyTimeout: 30000,
-        onError: (err, req, res) => {
-          console.error('Proxy error:', err.message);
-          if (!res.headersSent) {
-            res.status(502).json({
-              error: 'Bad Gateway',
-              message: 'Unable to connect to gaming service',
-              target: gamingTarget,
-            });
-          }
-        },
-      }),
-    );
 
     await cachedApp.init();
   }
