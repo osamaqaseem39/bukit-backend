@@ -62,6 +62,18 @@ async function bootstrap() {
     const gamingTarget =
       process.env.GAMING_SERVICE_URL ?? 'http://localhost:3002';
 
+    // Warn if using localhost (won't work on Vercel)
+    if (authTarget.includes('localhost') || authTarget.includes('127.0.0.1')) {
+      console.warn(
+        'WARNING: AUTH_SERVICE_URL is set to localhost. This will not work on Vercel. Please set AUTH_SERVICE_URL environment variable.',
+      );
+    }
+    if (gamingTarget.includes('localhost') || gamingTarget.includes('127.0.0.1')) {
+      console.warn(
+        'WARNING: GAMING_SERVICE_URL is set to localhost. This will not work on Vercel. Please set GAMING_SERVICE_URL environment variable.',
+      );
+    }
+
     // Proxy auth-related routes to the auth service
     server.use(
       ['/auth', '/locations', '/uploads'],
@@ -69,6 +81,18 @@ async function bootstrap() {
         target: authTarget,
         changeOrigin: true,
         pathRewrite: {},
+        timeout: 30000,
+        proxyTimeout: 30000,
+        onError: (err, req, res) => {
+          console.error('Proxy error:', err.message);
+          if (!res.headersSent) {
+            res.status(502).json({
+              error: 'Bad Gateway',
+              message: 'Unable to connect to auth service',
+              target: authTarget,
+            });
+          }
+        },
       }),
     );
 
@@ -79,6 +103,18 @@ async function bootstrap() {
         target: gamingTarget,
         changeOrigin: true,
         pathRewrite: {},
+        timeout: 30000,
+        proxyTimeout: 30000,
+        onError: (err, req, res) => {
+          console.error('Proxy error:', err.message);
+          if (!res.headersSent) {
+            res.status(502).json({
+              error: 'Bad Gateway',
+              message: 'Unable to connect to gaming service',
+              target: gamingTarget,
+            });
+          }
+        },
       }),
     );
 
@@ -91,6 +127,16 @@ export default async function handler(
   req: VercelRequest,
   res: VercelResponse,
 ) {
-  const expressApp = await bootstrap();
-  expressApp(req, res);
+  try {
+    const expressApp = await bootstrap();
+    expressApp(req, res);
+  } catch (error) {
+    console.error('Handler error:', error);
+    if (!res.headersSent) {
+      res.status(500).json({
+        error: 'Internal Server Error',
+        message: error instanceof Error ? error.message : 'Unknown error',
+      });
+    }
+  }
 }
