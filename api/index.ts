@@ -11,37 +11,11 @@ async function bootstrap() {
     cachedApp = await NestFactory.create<NestExpressApplication>(AppModule);
 
     // CORS configuration
-    const allowedOrigins = (
-      process.env.ALLOWED_ORIGINS ||
-      'http://localhost:3000,http://localhost:5173,https://bukit-dashboard.vercel.app'
-    )
-      .split(',')
-      .map((o) => o.trim())
-      .filter(Boolean);
-
-    const allowedOriginSuffixes = (
-      process.env.ALLOWED_ORIGIN_SUFFIXES || '.vercel.app'
-    )
-      .split(',')
-      .map((s) => s.trim())
-      .filter(Boolean);
-
     cachedApp.enableCors({
-      origin: (origin, callback) => {
-        if (!origin) return callback(null, true);
-
-        const wildcardAllowed = allowedOrigins.includes('*');
-        const exactAllowed = allowedOrigins.includes(origin);
-        const suffixAllowed = allowedOriginSuffixes.some((suffix) =>
-          origin.endsWith(suffix),
-        );
-
-        if (wildcardAllowed || exactAllowed || suffixAllowed) {
-          return callback(null, true);
-        }
-
-        return callback(new Error('Not allowed by CORS'));
-      },
+      // In this phase, allow all origins to avoid CORS-related 500s
+      // (Vercel preflight OPTIONS hitting "Not allowed by CORS").
+      // You can tighten this later with an allowlist.
+      origin: true,
       credentials: true,
       methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE', 'OPTIONS'],
       allowedHeaders: [
