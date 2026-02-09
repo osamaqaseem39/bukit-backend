@@ -7,7 +7,7 @@ import {
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { diskStorage } from 'multer';
+import { diskStorage, memoryStorage } from 'multer';
 import { extname, join } from 'path';
 import { randomBytes } from 'crypto';
 
@@ -21,16 +21,24 @@ function editFileName(
   callback(null, `${name}${fileExtName}`);
 }
 
+// On Vercel/serverless the filesystem is read-only; we cannot mkdir `/uploads`.
+// Use in-memory storage there, and keep disk storage for local/dev.
+const isServerlessReadOnlyFs = !!process.env.VERCEL;
+
+const uploadStorage = isServerlessReadOnlyFs
+  ? memoryStorage()
+  : diskStorage({
+      destination: join(process.cwd(), 'uploads'),
+      filename: editFileName,
+    });
+
 @Controller('auth')
 export class UploadController {
   @Post('upload')
   @UseGuards(AuthGuard('jwt'))
   @UseInterceptors(
     FileInterceptor('file', {
-      storage: diskStorage({
-        destination: join(process.cwd(), 'uploads'),
-        filename: editFileName,
-      }),
+      storage: uploadStorage,
       limits: {
         fileSize: 5 * 1024 * 1024, // 5MB
       },
