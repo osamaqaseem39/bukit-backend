@@ -20,30 +20,64 @@ import { BookingsModule } from './bookings/bookings.module';
     }),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
-      useFactory: (configService: ConfigService) => ({
-        type: 'postgres',
-        host: configService.get<string>('DB_HOST'),
-        port: configService.get<number>('DB_PORT'),
-        username: configService.get<string>('DB_USERNAME'),
-        password: configService.get<string>('DB_PASSWORD'),
-        database: configService.get<string>('DB_DATABASE'),
-        autoLoadEntities: true,
-        synchronize: true, // DEV only, disable in production
-        ssl:
-          configService.get<string>('DB_SSL') === 'true'
-            ? { rejectUnauthorized: false }
-            : false,
-        // Connection pool settings for serverless environments
-        extra: {
-          max: 5, // Maximum number of connections in the pool
-          min: 1, // Minimum number of connections in the pool
-          idleTimeoutMillis: 30000, // Close idle connections after 30 seconds
-          connectionTimeoutMillis: 10000, // Timeout after 10 seconds if connection cannot be established
-        },
-        // Connection retry settings
-        retryAttempts: 3,
-        retryDelay: 3000,
-      }),
+      useFactory: (configService: ConfigService) => {
+        // Prefer Supabase-style POSTGRES_URL_NON_POOLING / POSTGRES_URL when present,
+        // otherwise fall back to individual DB_* vars.
+        const url =
+          process.env.POSTGRES_URL_NON_POOLING || process.env.POSTGRES_URL;
+
+        if (url) {
+          const parsed = new URL(url);
+          const sslMode = parsed.searchParams.get('sslmode');
+
+          return {
+            type: 'postgres' as const,
+            host: parsed.hostname,
+            port: Number(parsed.port || 5432),
+            username: parsed.username,
+            password: parsed.password,
+            database: parsed.pathname.replace(/^\//, ''),
+            autoLoadEntities: true,
+            synchronize: true, // DEV only, disable in production
+            ssl:
+              sslMode === 'require'
+                ? { rejectUnauthorized: false }
+                : false,
+            extra: {
+              max: 5,
+              min: 1,
+              idleTimeoutMillis: 30000,
+              connectionTimeoutMillis: 10000,
+            },
+            retryAttempts: 3,
+            retryDelay: 3000,
+          };
+        }
+
+        // Fallback: explicit DB_* variables
+        return {
+          type: 'postgres' as const,
+          host: configService.get<string>('DB_HOST'),
+          port: configService.get<number>('DB_PORT'),
+          username: configService.get<string>('DB_USERNAME'),
+          password: configService.get<string>('DB_PASSWORD'),
+          database: configService.get<string>('DB_DATABASE'),
+          autoLoadEntities: true,
+          synchronize: true, // DEV only, disable in production
+          ssl:
+            configService.get<string>('DB_SSL') === 'true'
+              ? { rejectUnauthorized: false }
+              : false,
+          extra: {
+            max: 5,
+            min: 1,
+            idleTimeoutMillis: 30000,
+            connectionTimeoutMillis: 10000,
+          },
+          retryAttempts: 3,
+          retryDelay: 3000,
+        };
+      },
       inject: [ConfigService],
     }),
     UsersModule,
