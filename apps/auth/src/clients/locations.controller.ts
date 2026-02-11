@@ -9,6 +9,9 @@ import {
   Query,
   UseGuards,
   ForbiddenException,
+  BadRequestException,
+  InternalServerErrorException,
+  Logger,
 } from '@nestjs/common';
 import { LocationsService } from './locations.service';
 import { CreateLocationDto } from './dto/create-location.dto';
@@ -22,17 +25,52 @@ import { UserRole } from '../users/user.entity';
 @Controller('locations')
 @UseGuards(JwtAuthGuard)
 export class LocationsController {
+  private readonly logger = new Logger(LocationsController.name);
+
   constructor(private readonly locationsService: LocationsService) {}
 
   @Post()
   @UseGuards(RolesGuard)
   @Roles(UserRole.ADMIN, UserRole.CLIENT)
   async create(@Body() createLocationDto: CreateLocationDto, @CurrentUser() user: any) {
-    // CLIENT can only create locations for themselves
-    if (user.role === UserRole.CLIENT && createLocationDto.client_id !== user.id) {
-      throw new ForbiddenException('You can only create locations for yourself');
+    try {
+      // Validate user exists
+      if (!user) {
+        throw new BadRequestException('User not found');
+      }
+
+      // CLIENT can only create locations for themselves
+      if (user.role === UserRole.CLIENT && createLocationDto.client_id !== user.id) {
+        throw new ForbiddenException('You can only create locations for yourself');
+      }
+
+      return await this.locationsService.create(createLocationDto);
+    } catch (error) {
+      this.logger.error('Error creating location', error);
+      
+      // Re-throw known exceptions
+      if (error instanceof ForbiddenException || error instanceof BadRequestException) {
+        throw error;
+      }
+
+      // Handle database constraint violations
+      if (error?.code === '23503') {
+        // Foreign key constraint violation
+        throw new BadRequestException(
+          `Invalid client_id: ${createLocationDto.client_id}. The client does not exist.`
+        );
+      }
+
+      // Handle validation errors
+      if (error?.response?.statusCode === 400) {
+        throw error;
+      }
+
+      // Generic error handling
+      throw new InternalServerErrorException(
+        error?.message || 'Failed to create location'
+      );
     }
-    return this.locationsService.create(createLocationDto);
   }
 
   @Get()

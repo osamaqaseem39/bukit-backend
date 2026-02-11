@@ -2,6 +2,7 @@ import {
   Injectable,
   NotFoundException,
   BadRequestException,
+  Logger,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -11,14 +12,51 @@ import { UpdateLocationDto } from './dto/update-location.dto';
 
 @Injectable()
 export class LocationsService {
+  private readonly logger = new Logger(LocationsService.name);
+
   constructor(
     @InjectRepository(Location)
     private readonly locationRepository: Repository<Location>,
   ) {}
 
   async create(createLocationDto: CreateLocationDto): Promise<Location> {
-    const location = this.locationRepository.create(createLocationDto);
-    return await this.locationRepository.save(location);
+    try {
+      const location = this.locationRepository.create(createLocationDto);
+      return await this.locationRepository.save(location);
+    } catch (error) {
+      this.logger.error('Error creating location', error);
+      
+      // Handle PostgreSQL foreign key constraint violation
+      if (error?.code === '23503') {
+        throw new BadRequestException(
+          `Invalid client_id: ${createLocationDto.client_id}. The client does not exist.`
+        );
+      }
+
+      // Handle unique constraint violations
+      if (error?.code === '23505') {
+        throw new BadRequestException(
+          'A location with these details already exists'
+        );
+      }
+
+      // Handle not null constraint violations
+      if (error?.code === '23502') {
+        throw new BadRequestException(
+          `Required field missing: ${error.column}`
+        );
+      }
+
+      // Re-throw if it's already a known exception
+      if (error instanceof BadRequestException || error instanceof NotFoundException) {
+        throw error;
+      }
+
+      // Generic database error
+      throw new BadRequestException(
+        error?.message || 'Failed to create location due to database error'
+      );
+    }
   }
 
   async findAll(clientId?: string): Promise<Location[]> {

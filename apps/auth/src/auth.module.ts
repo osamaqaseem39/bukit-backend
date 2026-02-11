@@ -11,6 +11,7 @@ import { ClientsModule } from './clients/clients.module';
 import { LocalStrategy } from './strategies/local.strategy';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { BookingsModule } from './bookings/bookings.module';
+import { RefreshToken } from './refresh-token.entity';
 
 @Module({
   imports: [
@@ -84,6 +85,7 @@ import { BookingsModule } from './bookings/bookings.module';
     ClientsModule,
     BookingsModule,
     PassportModule,
+    TypeOrmModule.forFeature([RefreshToken]),
     JwtModule.registerAsync({
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => ({

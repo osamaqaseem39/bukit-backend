@@ -1,5 +1,6 @@
 import { NestFactory } from '@nestjs/core';
 import { NestExpressApplication } from '@nestjs/platform-express';
+import { ValidationPipe } from '@nestjs/common';
 import { AppModule } from '../apps/api/src/app.module';
 import { createProxyMiddleware } from 'http-proxy-middleware';
 import type { VercelRequest, VercelResponse } from '@vercel/node';
@@ -9,6 +10,18 @@ let cachedApp: NestExpressApplication;
 async function bootstrap() {
   if (!cachedApp) {
     cachedApp = await NestFactory.create<NestExpressApplication>(AppModule);
+
+    // Enable global validation pipe
+    cachedApp.useGlobalPipes(
+      new ValidationPipe({
+        whitelist: true,
+        forbidNonWhitelisted: true,
+        transform: true,
+        transformOptions: {
+          enableImplicitConversion: true,
+        },
+      }),
+    );
 
     // CORS configuration
     cachedApp.enableCors({

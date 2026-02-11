@@ -68,4 +68,18 @@ export class AuthController {
     const { password_hash, ...userWithoutPassword } = user;
     return userWithoutPassword;
   }
+
+  @Post('refresh')
+  async refresh(@Body('refresh_token') refreshToken: string) {
+    if (!refreshToken) {
+      throw new UnauthorizedException('Refresh token is required');
+    }
+    return this.authService.refreshTokens(refreshToken);
+  }
+
+  @Post('logout')
+  async logout(@Body('refresh_token') refreshToken?: string) {
+    await this.authService.logout(refreshToken);
+    return { success: true };
+  }
 }
