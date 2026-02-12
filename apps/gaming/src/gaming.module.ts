@@ -4,8 +4,8 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { GamingController } from './gaming.controller';
 import { GamingService } from './gaming.service';
 import { GamingCenter } from './gaming.entity';
-import { UsersModule } from '../auth/src/users/users.module';
-import { ClientsModule } from '../auth/src/clients/clients.module';
+import { UsersModule } from '../../auth/src/users/users.module';
+import { ClientsModule } from '../../auth/src/clients/clients.module';
 
 @Module({
   imports: [

@@ -8,10 +8,10 @@ import { Repository } from 'typeorm';
 import { GamingCenter } from './gaming.entity';
 import { CreateGamingDto } from './dto/create-gaming.dto';
 import { UpdateGamingDto } from './dto/update-gaming.dto';
-import { UsersService } from '../auth/src/users/users.service';
-import { UserRole } from '../auth/src/users/user.entity';
+import { UsersService } from '../../auth/src/users/users.service';
+import { UserRole } from '../../auth/src/users/user.entity';
 import { RegisterGamingDto } from './dto/register-gaming.dto';
-import { LocationsService } from '../auth/src/clients/locations.service';
+import { LocationsService } from '../../auth/src/clients/locations.service';
 
 @Injectable()
 export class GamingService {
@@ -36,7 +36,7 @@ export class GamingService {
     const admin = await this.usersService.create(registerGamingDto.admin);
 
     // Create or find Location from address data
-    let location = null;
+    let location: { id: string; name: string; address?: string; city?: string; state?: string; country?: string; postal_code?: string; phone?: string; latitude?: number; longitude?: number } | null = null;
     if (
       registerGamingDto.gaming.address ||
       registerGamingDto.gaming.city ||

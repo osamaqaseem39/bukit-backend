@@ -17,6 +17,9 @@
     "noImplicitAny": false,
     "strictBindCallApply": false,
     "noFallthroughCasesInSwitch": false,
-    "paths": {}
+    "paths": {
+      "@auth/*": ["apps/auth/src/*"],
+      "@gaming/*": ["apps/gaming/src/*"]
+    }
   }
 }

@@ -2,94 +2,37 @@ const path = require('path');
 
 module.exports = function (options, webpack) {
   const rootDir = path.resolve(__dirname);
+  const resolve = options.resolve || {};
   
-  // Find and update the TypeScript loader rule to include all apps
-  const updatedRules = (options.module?.rules || []).map(rule => {
-    // Check if this is the TypeScript rule
-    if (rule.test && (rule.test.toString().includes('ts') || rule.test.toString().includes('\\.ts'))) {
-      const updatedRule = {
-        ...rule,
-        include: [
-          path.resolve(rootDir, 'apps/auth/src'),
-          path.resolve(rootDir, 'apps/gaming/src'),
-          path.resolve(rootDir, 'apps/api/src'),
-          path.resolve(rootDir, 'apps/cricket/src'),
-          path.resolve(rootDir, 'apps/futsal-turf/src'),
-          path.resolve(rootDir, 'apps/padel/src'),
-          path.resolve(rootDir, 'apps/snooker/src'),
-          path.resolve(rootDir, 'apps/table-tennis/src'),
-        ],
-      };
-
-      // If rule has a 'use' property, modify loader options within the use array
-      // Cannot have both 'use' and 'options' at rule level (webpack restriction)
-      if (rule.use) {
-        const updateLoaderOptions = (loader) => {
-          const loaderName = typeof loader === 'string' 
-            ? loader 
-            : (loader.loader || loader);
-          
-          // Check if this is ts-loader
-          if (loaderName && loaderName.toString().includes('ts-loader')) {
-            if (typeof loader === 'string') {
-              return {
-                loader,
-                options: {
-                  configFile: path.resolve(rootDir, 'apps/api/tsconfig.app.json'),
-                },
-              };
-            } else {
-              return {
-                ...loader,
-                options: {
-                  ...loader.options,
-                  configFile: path.resolve(rootDir, 'apps/api/tsconfig.app.json'),
-                },
-              };
-            }
-          }
-          return loader;
-        };
-
-        const updatedUse = Array.isArray(rule.use) 
-          ? rule.use.map(updateLoaderOptions)
-          : updateLoaderOptions(rule.use);
-
-        updatedRule.use = updatedUse;
-        // Remove options from rule level if it exists (since we have 'use')
-        delete updatedRule.options;
-      } else {
-        // If rule doesn't have 'use', we can add options directly
-        updatedRule.options = {
-          ...rule.options,
-          configFile: path.resolve(rootDir, 'apps/api/tsconfig.app.json'),
-        };
-      }
-
-      return updatedRule;
-    }
-    return rule;
-  });
+  // Create a custom resolver plugin to handle relative paths across apps
+  const NormalModuleReplacementPlugin = webpack.NormalModuleReplacementPlugin;
   
   return {
     ...options,
-    // Set context to root directory so relative paths resolve correctly
-    context: rootDir,
     resolve: {
-      ...options.resolve,
-      extensions: ['.ts', '.js', '.json', ...(options.resolve?.extensions || [])],
-      symlinks: false,
-      // Add root directory and apps directory to resolve paths for cross-app imports
+      ...resolve,
+      // Ensure node_modules is resolved first
       modules: [
-        ...(options.resolve?.modules || []),
-        path.resolve(rootDir, 'apps'),
-        path.resolve(rootDir, 'node_modules'),
-        path.resolve(rootDir),
+        path.resolve(rootDir, 'node_modules'), // node_modules must come first
+        ...(resolve.modules || []),
       ],
+      // Ensure webpack can resolve TypeScript files
+      extensions: ['.ts', '.js', '.json', ...(resolve.extensions || [])],
+      symlinks: false,
     },
-    module: {
-      ...options.module,
-      rules: updatedRules,
-    },
+    plugins: [
+      ...(options.plugins || []),
+      // Add plugin to handle relative imports from gaming to auth
+      new NormalModuleReplacementPlugin(
+        /^\.\.\/auth\/src\//,
+        (resource) => {
+          // Replace ../auth/src/... with the absolute path
+          resource.request = resource.request.replace(
+            /^\.\.\/auth\/src\//,
+            path.resolve(rootDir, 'apps/auth/src/') + '/'
+          );
+        }
+      ),
+    ],
   };
 };
