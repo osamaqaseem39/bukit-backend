@@ -9,6 +9,7 @@ import { Repository } from 'typeorm';
 import { Location } from './location.entity';
 import { CreateLocationDto } from './dto/create-location.dto';
 import { UpdateLocationDto } from './dto/update-location.dto';
+import { UsersService } from '../users/users.service';
 
 @Injectable()
 export class LocationsService {
@@ -17,14 +18,28 @@ export class LocationsService {
   constructor(
     @InjectRepository(Location)
     private readonly locationRepository: Repository<Location>,
+    private readonly usersService: UsersService,
   ) {}
 
   async create(createLocationDto: CreateLocationDto): Promise<Location> {
     try {
+      // Validate that the client_id exists in the users table
+      const user = await this.usersService.findOne(createLocationDto.client_id);
+      if (!user) {
+        throw new BadRequestException(
+          `Invalid client_id: ${createLocationDto.client_id}. The user does not exist.`
+        );
+      }
+
       const location = this.locationRepository.create(createLocationDto);
       return await this.locationRepository.save(location);
     } catch (error) {
       this.logger.error('Error creating location', error);
+      
+      // Re-throw BadRequestException if it's already been thrown
+      if (error instanceof BadRequestException) {
+        throw error;
+      }
       
       // Handle PostgreSQL foreign key constraint violation
       if (error?.code === '23503') {

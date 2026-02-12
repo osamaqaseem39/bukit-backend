@@ -9,9 +9,13 @@ import { LocationsController } from './locations.controller';
 import { Facility } from './facility.entity';
 import { FacilitiesService } from './facilities.service';
 import { FacilitiesController } from './facilities.controller';
+import { UsersModule } from '../users/users.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Client, Location, Facility])],
+  imports: [
+    TypeOrmModule.forFeature([Client, Location, Facility]),
+    UsersModule,
+  ],
   controllers: [ClientsController, LocationsController, FacilitiesController],
   providers: [ClientsService, LocationsService, FacilitiesService],
   exports: [ClientsService, LocationsService, FacilitiesService],
