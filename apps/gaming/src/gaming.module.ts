@@ -1,5 +1,4 @@
 import { Module } from '@nestjs/common';
-import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { GamingController } from './gaming.controller';
 import { GamingService } from './gaming.service';
@@ -9,28 +8,8 @@ import { ClientsModule } from '../../auth/src/clients/clients.module';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({
-      isGlobal: true,
-      envFilePath: '.env',
-    }),
-    TypeOrmModule.forRootAsync({
-      imports: [ConfigModule],
-      useFactory: (configService: ConfigService) => ({
-        type: 'postgres',
-        host: configService.get<string>('DB_HOST'),
-        port: configService.get<number>('DB_PORT'),
-        username: configService.get<string>('DB_USERNAME'),
-        password: configService.get<string>('DB_PASSWORD'),
-        database: configService.get<string>('DB_DATABASE'),
-        autoLoadEntities: true,
-        synchronize: true, // DEV only, disable in production
-        ssl:
-          configService.get<string>('DB_SSL') === 'true'
-            ? { rejectUnauthorized: false }
-            : false,
-      }),
-      inject: [ConfigService],
-    }),
+    // ConfigModule is already global from AuthModule, no need to re-import
+    // TypeORM root connection is already set up in AuthModule, so we just use forFeature
     TypeOrmModule.forFeature([GamingCenter]),
     UsersModule,
     ClientsModule,
