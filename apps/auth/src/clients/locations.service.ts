@@ -47,6 +47,19 @@ export class LocationsService {
         );
       }
 
+      // Handle numeric field overflow (e.g., invalid latitude/longitude values)
+      if (error?.code === '22003') {
+        const detail = error?.detail || '';
+        if (detail.includes('latitude') || detail.includes('longitude')) {
+          throw new BadRequestException(
+            'Invalid latitude or longitude value. Latitude must be between -90 and 90, and longitude must be between -180 and 180.'
+          );
+        }
+        throw new BadRequestException(
+          'Numeric value out of range. Please check your input values.'
+        );
+      }
+
       // Re-throw if it's already a known exception
       if (error instanceof BadRequestException || error instanceof NotFoundException) {
         throw error;

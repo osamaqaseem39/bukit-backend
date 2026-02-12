@@ -1,25 +1,37 @@
 const path = require('path');
 
 module.exports = function (options, webpack) {
-  const resolve = options.resolve || {};
   const rootDir = path.resolve(__dirname);
+  
+  // Find and update the TypeScript loader rule to include all apps
+  const updatedRules = (options.module?.rules || []).map(rule => {
+    // Check if this is the TypeScript rule
+    if (rule.test && (rule.test.toString().includes('ts') || rule.test.toString().includes('\\.ts'))) {
+      return {
+        ...rule,
+        include: [
+          path.resolve(rootDir, 'apps'),
+        ],
+        options: {
+          ...rule.options,
+          // Ensure ts-loader uses the correct tsconfig that includes all apps
+          configFile: path.resolve(rootDir, 'apps/api/tsconfig.app.json'),
+        },
+      };
+    }
+    return rule;
+  });
   
   return {
     ...options,
     resolve: {
-      ...resolve,
-      // Add the apps directory and individual app src directories to module resolution
-      // This allows webpack to resolve relative imports like ../auth/src/... from any app
-      modules: [
-        ...(resolve.modules || ['node_modules']),
-        path.resolve(rootDir, 'apps/auth/src'),
-        path.resolve(rootDir, 'apps/gaming/src'),
-        path.resolve(rootDir, 'apps'),
-        path.resolve(rootDir),
-      ],
-      // Ensure webpack can resolve TypeScript files
-      extensions: ['.ts', '.js', '.json', ...(resolve.extensions || [])],
+      ...options.resolve,
+      extensions: ['.ts', '.js', '.json', ...(options.resolve?.extensions || [])],
       symlinks: false,
+    },
+    module: {
+      ...options.module,
+      rules: updatedRules,
     },
   };
 };
