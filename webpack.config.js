@@ -10,7 +10,14 @@ module.exports = function (options, webpack) {
       const updatedRule = {
         ...rule,
         include: [
-          path.resolve(rootDir, 'apps'),
+          path.resolve(rootDir, 'apps/auth/src'),
+          path.resolve(rootDir, 'apps/gaming/src'),
+          path.resolve(rootDir, 'apps/api/src'),
+          path.resolve(rootDir, 'apps/cricket/src'),
+          path.resolve(rootDir, 'apps/futsal-turf/src'),
+          path.resolve(rootDir, 'apps/padel/src'),
+          path.resolve(rootDir, 'apps/snooker/src'),
+          path.resolve(rootDir, 'apps/table-tennis/src'),
         ],
       };
 
@@ -66,10 +73,19 @@ module.exports = function (options, webpack) {
   
   return {
     ...options,
+    // Set context to root directory so relative paths resolve correctly
+    context: rootDir,
     resolve: {
       ...options.resolve,
       extensions: ['.ts', '.js', '.json', ...(options.resolve?.extensions || [])],
       symlinks: false,
+      // Add root directory and apps directory to resolve paths for cross-app imports
+      modules: [
+        ...(options.resolve?.modules || []),
+        path.resolve(rootDir, 'apps'),
+        path.resolve(rootDir, 'node_modules'),
+        path.resolve(rootDir),
+      ],
     },
     module: {
       ...options.module,
