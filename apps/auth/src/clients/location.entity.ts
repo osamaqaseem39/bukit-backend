@@ -7,7 +7,7 @@ import {
   ManyToOne,
   JoinColumn,
 } from 'typeorm';
-import { User } from '../users/user.entity';
+import { Client } from './client.entity';
 
 @Entity('locations')
 export class Location {
@@ -17,9 +17,11 @@ export class Location {
   @Column({ type: 'uuid' })
   client_id: string;
 
-  @ManyToOne(() => User)
+  // Each location now belongs to a Client (business),
+  // not directly to the client User account.
+  @ManyToOne(() => Client)
   @JoinColumn({ name: 'client_id' })
-  client: User;
+  client: Client;
 
   @Column()
   name: string;

@@ -39,11 +39,6 @@ export class LocationsController {
         throw new BadRequestException('User not found');
       }
 
-      // CLIENT can only create locations for themselves - override client_id with their own ID
-      if (user.role === UserRole.CLIENT) {
-        createLocationDto.client_id = user.id;
-      }
-
       return await this.locationsService.create(createLocationDto);
     } catch (error) {
       this.logger.error('Error creating location', error);
