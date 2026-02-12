@@ -4,6 +4,10 @@
     "declaration": false,
     "outDir": "../../dist/apps/api"
   },
-  "include": ["src/**/*"],
+  "include": [
+    "src/**/*",
+    "../auth/src/**/*",
+    "../gaming/src/**/*"
+  ],
   "exclude": ["node_modules", "dist", "test", "**/*spec.ts"]
 }

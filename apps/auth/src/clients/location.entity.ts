@@ -45,10 +45,10 @@ export class Location {
   @Column({ nullable: true })
   postal_code: string;
 
-  @Column({ type: 'decimal', precision: 10, scale: 8, nullable: true })
+  @Column({ type: 'decimal', precision: 11, scale: 8, nullable: true })
   latitude: number;
 
-  @Column({ type: 'decimal', precision: 11, scale: 8, nullable: true })
+  @Column({ type: 'decimal', precision: 12, scale: 8, nullable: true })
   longitude: number;
 
   @CreateDateColumn()
