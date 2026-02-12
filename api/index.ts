@@ -73,7 +73,7 @@ async function bootstrap() {
               });
             }
           },
-        }),
+        } as any), // Type assertion needed as @types/http-proxy-middleware doesn't include onError
       );
     } else {
       console.log(
@@ -106,7 +106,7 @@ async function bootstrap() {
               });
             }
           },
-        }),
+        } as any), // Type assertion needed as @types/http-proxy-middleware doesn't include onError
       );
     }
 
