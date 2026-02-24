@@ -14,11 +14,11 @@ import { TableTennisService } from './table-tennis.service';
 import { CreateTableTennisDto } from './dto/create-table-tennis.dto';
 import { UpdateTableTennisDto } from './dto/update-table-tennis.dto';
 import { RegisterTableTennisDto } from './dto/register-table-tennis.dto';
-import { JwtAuthGuard } from '../auth/src/guards/jwt-auth.guard';
-import { RolesGuard } from '../auth/src/guards/roles.guard';
-import { Roles } from '../auth/src/decorators/roles.decorator';
-import { CurrentUser } from '../auth/src/decorators/current-user.decorator';
-import { UserRole } from '../auth/src/users/user.entity';
+import { JwtAuthGuard } from '../../auth/src/guards/jwt-auth.guard';
+import { RolesGuard } from '../../auth/src/guards/roles.guard';
+import { Roles } from '../../auth/src/decorators/roles.decorator';
+import { CurrentUser } from '../../auth/src/decorators/current-user.decorator';
+import { UserRole } from '../../auth/src/users/user.entity';
 
 @Controller('table-tennis')
 @UseGuards(JwtAuthGuard)

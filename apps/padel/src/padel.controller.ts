@@ -14,11 +14,11 @@ import { PadelService } from './padel.service';
 import { CreatePadelDto } from './dto/create-padel.dto';
 import { UpdatePadelDto } from './dto/update-padel.dto';
 import { RegisterPadelDto } from './dto/register-padel.dto';
-import { JwtAuthGuard } from '../auth/src/guards/jwt-auth.guard';
-import { RolesGuard } from '../auth/src/guards/roles.guard';
-import { Roles } from '../auth/src/decorators/roles.decorator';
-import { CurrentUser } from '../auth/src/decorators/current-user.decorator';
-import { UserRole } from '../auth/src/users/user.entity';
+import { JwtAuthGuard } from '../../auth/src/guards/jwt-auth.guard';
+import { RolesGuard } from '../../auth/src/guards/roles.guard';
+import { Roles } from '../../auth/src/decorators/roles.decorator';
+import { CurrentUser } from '../../auth/src/decorators/current-user.decorator';
+import { UserRole } from '../../auth/src/users/user.entity';
 
 @Controller('padel')
 @UseGuards(JwtAuthGuard)

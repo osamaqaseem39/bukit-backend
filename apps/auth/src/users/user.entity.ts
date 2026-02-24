@@ -4,9 +4,13 @@ import {
   PrimaryGeneratedColumn,
   CreateDateColumn,
   UpdateDateColumn,
+  ManyToOne,
+  OneToMany,
+  JoinColumn,
 } from 'typeorm';
 
 export enum UserRole {
+  SUPER_ADMIN = 'super_admin',
   ADMIN = 'admin',
   CLIENT = 'client',
   USER = 'user',
@@ -52,6 +56,24 @@ export class User {
   role: UserRole;
 
   /**
+   * Optional FK to parent user (client admin). Normalized self-join: one users table.
+   * - For client admins: typically their own id (self) or null
+   * - For users in a client domain: the client admin's user id
+   * - For super admins and regular admins: null
+   */
+  @Column({ name: 'client_id', nullable: true })
+  client_id?: string | null;
+
+  /** Parent user (client admin) this user belongs to. Self-join on users table. */
+  @ManyToOne(() => User, (u) => u.child_users, { onDelete: 'SET NULL' })
+  @JoinColumn({ name: 'client_id' })
+  parent?: User | null;
+
+  /** Users that belong to this user's domain (when this user is a client admin). */
+  @OneToMany(() => User, (u) => u.parent)
+  child_users?: User[];
+
+  /**
    * Optional list of dashboard modules that this user is allowed to see.
    *
    * - When null, the frontend will fall back to role-based visibility.
@@ -64,6 +86,12 @@ export class User {
 
   @Column()
   password_hash: string;
+
+  /**
+   * When true, user must change password on next login (e.g. after admin-created default).
+   */
+  @Column({ default: false })
+  requires_password_change: boolean;
 
   @CreateDateColumn()
   created_at: Date;

@@ -7,8 +7,8 @@ import { Repository } from 'typeorm';
 import { SnookerTable } from './snooker.entity';
 import { CreateSnookerDto } from './dto/create-snooker.dto';
 import { UpdateSnookerDto } from './dto/update-snooker.dto';
-import { UsersService } from '../auth/src/users/users.service';
-import { UserRole } from '../auth/src/users/user.entity';
+import { UsersService } from '../../auth/src/users/users.service';
+import { UserRole } from '../../auth/src/users/user.entity';
 import { RegisterSnookerDto } from './dto/register-snooker.dto';
 
 @Injectable()

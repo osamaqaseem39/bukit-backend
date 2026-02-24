@@ -1,18 +1,12 @@
-import {
-  IsString,
-  IsNotEmpty,
-  MinLength,
-  IsEmail,
-  ValidateNested,
-} from 'class-validator';
+import { ValidateNested } from 'class-validator';
 import { Type } from 'class-transformer';
-import { CreateUserDto } from '../../users/dto/create-user.dto';
+import { RegisterClientUserDto } from './register-client-user.dto';
 import { CreateClientDto } from './create-client.dto';
 
 export class RegisterClientDto {
   @ValidateNested()
-  @Type(() => CreateUserDto)
-  user: CreateUserDto;
+  @Type(() => RegisterClientUserDto)
+  user: RegisterClientUserDto;
 
   @ValidateNested()
   @Type(() => CreateClientDto)

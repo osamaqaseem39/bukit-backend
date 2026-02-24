@@ -14,11 +14,11 @@ import { CricketService } from './cricket.service';
 import { CreateCricketDto } from './dto/create-cricket.dto';
 import { UpdateCricketDto } from './dto/update-cricket.dto';
 import { RegisterCricketDto } from './dto/register-cricket.dto';
-import { JwtAuthGuard } from '../auth/src/guards/jwt-auth.guard';
-import { RolesGuard } from '../auth/src/guards/roles.guard';
-import { Roles } from '../auth/src/decorators/roles.decorator';
-import { CurrentUser } from '../auth/src/decorators/current-user.decorator';
-import { UserRole } from '../auth/src/users/user.entity';
+import { JwtAuthGuard } from '../../auth/src/guards/jwt-auth.guard';
+import { RolesGuard } from '../../auth/src/guards/roles.guard';
+import { Roles } from '../../auth/src/decorators/roles.decorator';
+import { CurrentUser } from '../../auth/src/decorators/current-user.decorator';
+import { UserRole } from '../../auth/src/users/user.entity';
 
 @Controller('cricket')
 @UseGuards(JwtAuthGuard)

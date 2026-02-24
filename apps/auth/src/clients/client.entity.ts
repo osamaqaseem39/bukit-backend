@@ -34,6 +34,12 @@ export class Client {
   company_name: string;
 
   @Column({ nullable: true })
+  contact_name: string;
+
+  @Column({ nullable: true })
+  email: string;
+
+  @Column({ nullable: true })
   company_registration_number: string;
 
   @Column({ nullable: true })

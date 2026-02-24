@@ -8,12 +8,20 @@ import { Repository } from 'typeorm';
 import { Client, ClientStatus } from './client.entity';
 import { CreateClientDto } from './dto/create-client.dto';
 import { UpdateClientDto } from './dto/update-client.dto';
+import { Location } from './location.entity';
+import { Facility } from './facility.entity';
+import { UsersService } from '../users/users.service';
 
 @Injectable()
 export class ClientsService {
   constructor(
     @InjectRepository(Client)
     private readonly clientRepository: Repository<Client>,
+    @InjectRepository(Location)
+    private readonly locationRepository: Repository<Location>,
+    @InjectRepository(Facility)
+    private readonly facilityRepository: Repository<Facility>,
+    private readonly usersService: UsersService,
   ) {}
 
   async create(createClientDto: CreateClientDto): Promise<Client> {
@@ -30,7 +38,7 @@ export class ClientsService {
     return await this.clientRepository.save(client);
   }
 
-  async findAll(status?: ClientStatus): Promise<Client[]> {
+  async findAll(status?: ClientStatus): Promise<any[]> {
     const query = this.clientRepository
       .createQueryBuilder('client')
       .leftJoinAndSelect('client.user', 'user');
@@ -39,7 +47,47 @@ export class ClientsService {
       query.where('client.status = :status', { status });
     }
 
-    return await query.getMany();
+    const clients = await query.getMany();
+
+    if (clients.length === 0) {
+      return clients;
+    }
+
+    const clientIds = clients.map((c) => c.id);
+
+    // Get location counts for all clients in one query
+    const locationCounts = await this.locationRepository
+      .createQueryBuilder('location')
+      .select('location.client_id', 'client_id')
+      .addSelect('COUNT(location.id)', 'count')
+      .where('location.client_id IN (:...clientIds)', { clientIds })
+      .groupBy('location.client_id')
+      .getRawMany();
+
+    const locationCountMap = new Map(
+      locationCounts.map((lc) => [lc.client_id, parseInt(lc.count, 10)]),
+    );
+
+    // Get facility counts through locations
+    const facilityCounts = await this.facilityRepository
+      .createQueryBuilder('facility')
+      .innerJoin(Location, 'location', 'location.id = facility.location_id')
+      .select('location.client_id', 'client_id')
+      .addSelect('COUNT(facility.id)', 'count')
+      .where('location.client_id IN (:...clientIds)', { clientIds })
+      .groupBy('location.client_id')
+      .getRawMany();
+
+    const facilityCountMap = new Map(
+      facilityCounts.map((fc) => [fc.client_id, parseInt(fc.count, 10)]),
+    );
+
+    // Map counts to clients
+    return clients.map((client) => ({
+      ...client,
+      locations_count: locationCountMap.get(client.id) || 0,
+      facilities_count: facilityCountMap.get(client.id) || 0,
+    }));
   }
 
   async findOne(id: string): Promise<Client> {
@@ -141,6 +189,18 @@ export class ClientsService {
 
     client.commission_rate = rate;
     return await this.clientRepository.save(client);
+  }
+
+  /**
+   * Reset client login password to a new random one and require change on next login.
+   * Returns email and temporary_password for admin to copy or send to client.
+   */
+  async resetClientPassword(clientId: string): Promise<{ email: string; temporary_password: string }> {
+    const client = await this.findOne(clientId);
+    if (!client?.user_id) {
+      throw new NotFoundException('Client or client user not found');
+    }
+    return this.usersService.resetPasswordToRandom(client.user_id);
   }
 
   async getStatistics() {

@@ -7,8 +7,8 @@ import { Repository } from 'typeorm';
 import { PadelCourt } from './padel.entity';
 import { CreatePadelDto } from './dto/create-padel.dto';
 import { UpdatePadelDto } from './dto/update-padel.dto';
-import { UsersService } from '../auth/src/users/users.service';
-import { UserRole } from '../auth/src/users/user.entity';
+import { UsersService } from '../../auth/src/users/users.service';
+import { UserRole } from '../../auth/src/users/user.entity';
 import { RegisterPadelDto } from './dto/register-padel.dto';
 
 @Injectable()

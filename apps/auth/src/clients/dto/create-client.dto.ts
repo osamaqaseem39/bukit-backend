@@ -51,6 +51,14 @@ export class CreateClientDto {
 
   @IsOptional()
   @IsString()
+  contact_name?: string;
+
+  @IsOptional()
+  @IsEmail()
+  email?: string;
+
+  @IsOptional()
+  @IsString()
   company_registration_number?: string;
 
   @IsOptional()

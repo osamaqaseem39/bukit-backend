@@ -108,6 +108,12 @@ export class ClientsController {
     return this.clientsService.updateCommissionRate(id, rate);
   }
 
+  @Post(':id/reset-password')
+  @Roles(UserRole.ADMIN)
+  resetClientPassword(@Param('id') id: string) {
+    return this.clientsService.resetClientPassword(id);
+  }
+
   @Delete(':id')
   @Roles(UserRole.ADMIN)
   remove(@Param('id') id: string) {

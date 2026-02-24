@@ -7,8 +7,8 @@ import { Repository } from 'typeorm';
 import { FutsalTurf } from './futsal-turf.entity';
 import { CreateFutsalTurfDto } from './dto/create-futsal-turf.dto';
 import { UpdateFutsalTurfDto } from './dto/update-futsal-turf.dto';
-import { UsersService } from '../auth/src/users/users.service';
-import { UserRole } from '../auth/src/users/user.entity';
+import { UsersService } from '../../auth/src/users/users.service';
+import { UserRole } from '../../auth/src/users/user.entity';
 import { RegisterFutsalTurfDto } from './dto/register-futsal-turf.dto';
 
 @Injectable()

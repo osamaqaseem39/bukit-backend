@@ -14,11 +14,11 @@ import { FutsalTurfService } from './futsal-turf.service';
 import { CreateFutsalTurfDto } from './dto/create-futsal-turf.dto';
 import { UpdateFutsalTurfDto } from './dto/update-futsal-turf.dto';
 import { RegisterFutsalTurfDto } from './dto/register-futsal-turf.dto';
-import { JwtAuthGuard } from '../auth/src/guards/jwt-auth.guard';
-import { RolesGuard } from '../auth/src/guards/roles.guard';
-import { Roles } from '../auth/src/decorators/roles.decorator';
-import { CurrentUser } from '../auth/src/decorators/current-user.decorator';
-import { UserRole } from '../auth/src/users/user.entity';
+import { JwtAuthGuard } from '../../auth/src/guards/jwt-auth.guard';
+import { RolesGuard } from '../../auth/src/guards/roles.guard';
+import { Roles } from '../../auth/src/decorators/roles.decorator';
+import { CurrentUser } from '../../auth/src/decorators/current-user.decorator';
+import { UserRole } from '../../auth/src/users/user.entity';
 
 @Controller('futsal-turf')
 @UseGuards(JwtAuthGuard)

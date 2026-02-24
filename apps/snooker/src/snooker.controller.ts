@@ -14,11 +14,11 @@ import { SnookerService } from './snooker.service';
 import { CreateSnookerDto } from './dto/create-snooker.dto';
 import { UpdateSnookerDto } from './dto/update-snooker.dto';
 import { RegisterSnookerDto } from './dto/register-snooker.dto';
-import { JwtAuthGuard } from '../auth/src/guards/jwt-auth.guard';
-import { RolesGuard } from '../auth/src/guards/roles.guard';
-import { Roles } from '../auth/src/decorators/roles.decorator';
-import { CurrentUser } from '../auth/src/decorators/current-user.decorator';
-import { UserRole } from '../auth/src/users/user.entity';
+import { JwtAuthGuard } from '../../auth/src/guards/jwt-auth.guard';
+import { RolesGuard } from '../../auth/src/guards/roles.guard';
+import { Roles } from '../../auth/src/decorators/roles.decorator';
+import { CurrentUser } from '../../auth/src/decorators/current-user.decorator';
+import { UserRole } from '../../auth/src/users/user.entity';
 
 @Controller('snooker')
 @UseGuards(JwtAuthGuard)

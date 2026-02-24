@@ -7,8 +7,8 @@ import { Repository } from 'typeorm';
 import { TableTennisTable } from './table-tennis.entity';
 import { CreateTableTennisDto } from './dto/create-table-tennis.dto';
 import { UpdateTableTennisDto } from './dto/update-table-tennis.dto';
-import { UsersService } from '../auth/src/users/users.service';
-import { UserRole } from '../auth/src/users/user.entity';
+import { UsersService } from '../../auth/src/users/users.service';
+import { UserRole } from '../../auth/src/users/user.entity';
 import { RegisterTableTennisDto } from './dto/register-table-tennis.dto';
 
 @Injectable()

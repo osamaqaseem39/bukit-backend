@@ -12,9 +12,8 @@ import { AuthService } from './auth.service';
 import { UsersService } from './users/users.service';
 import { CreateUserDto } from './users/dto/create-user.dto';
 import { RegisterClientDto } from './clients/dto/register-client.dto';
-import { Roles } from './decorators/roles.decorator';
-import { UserRole } from './users/user.entity';
-import { RolesGuard } from './guards/roles.guard';
+import { ChangePasswordDto } from './dto/change-password.dto';
+import { JwtAuthGuard } from './guards/jwt-auth.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -75,6 +74,20 @@ export class AuthController {
       throw new UnauthorizedException('Refresh token is required');
     }
     return this.authService.refreshTokens(refreshToken);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post('change-password')
+  async changePassword(@Request() req, @Body() dto: ChangePasswordDto) {
+    const userId = req.user?.userId || req.user?.id;
+    if (!userId) {
+      throw new UnauthorizedException('Not authenticated');
+    }
+    return this.authService.changePassword(
+      userId,
+      dto.current_password,
+      dto.new_password,
+    );
   }
 
   @Post('logout')

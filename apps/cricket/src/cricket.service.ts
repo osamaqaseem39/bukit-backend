@@ -7,8 +7,8 @@ import { Repository } from 'typeorm';
 import { CricketGround } from './cricket.entity';
 import { CreateCricketDto } from './dto/create-cricket.dto';
 import { UpdateCricketDto } from './dto/update-cricket.dto';
-import { UsersService } from '../auth/src/users/users.service';
-import { UserRole } from '../auth/src/users/user.entity';
+import { UsersService } from '../../auth/src/users/users.service';
+import { UserRole } from '../../auth/src/users/user.entity';
 import { RegisterCricketDto } from './dto/register-cricket.dto';
 
 @Injectable()

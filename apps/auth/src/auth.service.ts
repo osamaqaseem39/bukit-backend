@@ -58,6 +58,7 @@ export class AuthService {
     return {
       access_token: accessToken,
       refresh_token: refreshToken.token,
+      requires_password_change: user.requires_password_change ?? false,
     };
   }
 
@@ -71,25 +72,33 @@ export class AuthService {
     // 1. Force role to CLIENT
     data.user.role = UserRole.CLIENT;
 
-    // 2. Create User
-    const user = await this.usersService.create(data.user);
+    // 2. Generate default password (ignore any password from request)
+    const temporaryPassword = crypto.randomBytes(10).toString('base64').replace(/[/+=]/g, '').slice(0, 12);
+    data.user.password = temporaryPassword;
 
-    // 3. Create Client Profile
+    // 3. Create User first (without client_id), require password change on first login
+    const user = await this.usersService.create(data.user, null, { requiresPasswordChange: true });
+    
+    // 4. Update client_id to point to themselves (client admin owns their domain)
+    const updatedUser = await this.usersService.updateUserClientId(user.id, user.id);
+
+    // 5. Create Client Profile
     const clientData = {
       ...data.client,
-      user_id: user.id,
+      user_id: updatedUser.id,
     };
 
     const client = await this.clientsService.create(clientData);
 
     return {
       user: {
-        id: user.id,
-        email: user.email,
-        name: user.name,
-        role: user.role,
+        id: updatedUser.id,
+        email: updatedUser.email,
+        name: updatedUser.name,
+        role: updatedUser.role,
       },
       client,
+      temporary_password: temporaryPassword,
     };
   }
 
@@ -131,6 +140,23 @@ export class AuthService {
       access_token: accessToken,
       refresh_token: saved.token,
     };
+  }
+
+  async changePassword(
+    userId: string,
+    currentPassword: string,
+    newPassword: string,
+  ): Promise<{ success: boolean }> {
+    const user = await this.usersService.findOne(userId);
+    if (!user) {
+      throw new UnauthorizedException('User not found');
+    }
+    const valid = await bcrypt.compare(currentPassword, user.password_hash);
+    if (!valid) {
+      throw new UnauthorizedException('Current password is incorrect');
+    }
+    await this.usersService.updatePassword(userId, newPassword, true);
+    return { success: true };
   }
 
   async logout(refreshTokenToken?: string) {
