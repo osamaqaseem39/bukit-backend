@@ -10,6 +10,7 @@ import { User, UserRole } from './users/user.entity';
 import { ClientsService } from './clients/clients.service';
 import { RegisterClientDto } from './clients/dto/register-client.dto';
 import { RefreshToken } from './refresh-token.entity';
+import { CreateUserDto } from './users/dto/create-user.dto';
 
 @Injectable()
 export class AuthService {
@@ -69,16 +70,26 @@ export class AuthService {
   }
 
   async registerClient(data: RegisterClientDto) {
-    // 1. Force role to CLIENT
-    data.user.role = UserRole.CLIENT;
+    // 1. Generate default password (ignore any password from request)
+    const temporaryPassword = crypto
+      .randomBytes(10)
+      .toString('base64')
+      .replace(/[/+=]/g, '')
+      .slice(0, 12);
 
-    // 2. Generate default password (ignore any password from request)
-    const temporaryPassword = crypto.randomBytes(10).toString('base64').replace(/[/+=]/g, '').slice(0, 12);
-    data.user.password = temporaryPassword;
+    // 2. Build a proper CreateUserDto with forced CLIENT role
+    const userPayload: CreateUserDto = {
+      name: data.user.name,
+      email: data.user.email,
+      password: temporaryPassword,
+      role: UserRole.CLIENT,
+    };
 
     // 3. Create User first (without client_id), require password change on first login
-    const user = await this.usersService.create(data.user, null, { requiresPasswordChange: true });
-    
+    const user = await this.usersService.create(userPayload, null, {
+      requiresPasswordChange: true,
+    });
+
     // 4. Update client_id to point to themselves (client admin owns their domain)
     const updatedUser = await this.usersService.updateUserClientId(user.id, user.id);
 
