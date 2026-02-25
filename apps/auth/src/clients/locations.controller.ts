@@ -14,6 +14,7 @@ import {
   Logger,
 } from '@nestjs/common';
 import { LocationsService } from './locations.service';
+import { ClientsService } from './clients.service';
 import { CreateLocationDto } from './dto/create-location.dto';
 import { UpdateLocationDto } from './dto/update-location.dto';
 import { JwtAuthGuard } from '../guards/jwt-auth.guard';
@@ -27,7 +28,10 @@ import { UserRole } from '../users/user.entity';
 export class LocationsController {
   private readonly logger = new Logger(LocationsController.name);
 
-  constructor(private readonly locationsService: LocationsService) {}
+  constructor(
+    private readonly locationsService: LocationsService,
+    private readonly clientsService: ClientsService,
+  ) {}
 
   @Post()
   @UseGuards(RolesGuard)
@@ -74,7 +78,14 @@ export class LocationsController {
   async findAll(@Query('clientId') clientId: string, @CurrentUser() user: any) {
     // CLIENT can only see their own locations
     if (user.role === UserRole.CLIENT) {
-      return this.locationsService.findAll(user.id);
+      const client = await this.clientsService.findByUserId(user.id);
+      if (!client) {
+        throw new BadRequestException(
+          'Client profile not found for the current user',
+        );
+      }
+
+      return this.locationsService.findAll(client.id);
     }
     // ADMIN can see all or filter by clientId
     return this.locationsService.findAll(clientId);
@@ -85,12 +96,15 @@ export class LocationsController {
   @Roles(UserRole.ADMIN, UserRole.CLIENT)
   async findOne(@Param('id') id: string, @CurrentUser() user: any) {
     const location = await this.locationsService.findOne(id);
-    
+
     // CLIENT can only access their own locations
-    if (user.role === UserRole.CLIENT && location.client_id !== user.id) {
-      throw new ForbiddenException('You can only access your own locations');
+    if (user.role === UserRole.CLIENT) {
+      const client = await this.clientsService.findByUserId(user.id);
+      if (!client || location.client_id !== client.id) {
+        throw new ForbiddenException('You can only access your own locations');
+      }
     }
-    
+
     return location;
   }
 
@@ -103,12 +117,15 @@ export class LocationsController {
     @CurrentUser() user: any,
   ) {
     const location = await this.locationsService.findOne(id);
-    
+
     // CLIENT can only update their own locations
-    if (user.role === UserRole.CLIENT && location.client_id !== user.id) {
-      throw new ForbiddenException('You can only update your own locations');
+    if (user.role === UserRole.CLIENT) {
+      const client = await this.clientsService.findByUserId(user.id);
+      if (!client || location.client_id !== client.id) {
+        throw new ForbiddenException('You can only update your own locations');
+      }
     }
-    
+
     return this.locationsService.update(id, updateLocationDto);
   }
 
@@ -117,12 +134,15 @@ export class LocationsController {
   @Roles(UserRole.ADMIN, UserRole.CLIENT)
   async remove(@Param('id') id: string, @CurrentUser() user: any) {
     const location = await this.locationsService.findOne(id);
-    
+
     // CLIENT can only delete their own locations
-    if (user.role === UserRole.CLIENT && location.client_id !== user.id) {
-      throw new ForbiddenException('You can only delete your own locations');
+    if (user.role === UserRole.CLIENT) {
+      const client = await this.clientsService.findByUserId(user.id);
+      if (!client || location.client_id !== client.id) {
+        throw new ForbiddenException('You can only delete your own locations');
+      }
     }
-    
+
     return this.locationsService.remove(id);
   }
 }
