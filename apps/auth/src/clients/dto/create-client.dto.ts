@@ -11,6 +11,7 @@ import {
   IsPhoneNumber,
 } from 'class-validator';
 import { Type } from 'class-transformer';
+import { OmitType } from '@nestjs/mapped-types';
 import { ClientStatus } from '../client.entity';
 
 class BusinessHoursDto {
@@ -127,3 +128,7 @@ export class CreateClientDto {
   @Type(() => PaymentDetailsDto)
   payment_details?: PaymentDetailsDto;
 }
+
+export class RegisterCreateClientDto extends OmitType(CreateClientDto, [
+  'user_id',
+] as const) {}

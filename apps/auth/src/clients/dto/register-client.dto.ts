@@ -1,7 +1,7 @@
 import { ValidateNested } from 'class-validator';
 import { Type } from 'class-transformer';
 import { RegisterClientUserDto } from './register-client-user.dto';
-import { CreateClientDto } from './create-client.dto';
+import { RegisterCreateClientDto } from './create-client.dto';
 
 export class RegisterClientDto {
   @ValidateNested()
@@ -9,6 +9,6 @@ export class RegisterClientDto {
   user: RegisterClientUserDto;
 
   @ValidateNested()
-  @Type(() => CreateClientDto)
-  client: CreateClientDto;
+  @Type(() => RegisterCreateClientDto)
+  client: RegisterCreateClientDto;
 }
