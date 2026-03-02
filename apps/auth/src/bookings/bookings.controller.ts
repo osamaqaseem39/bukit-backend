@@ -5,6 +5,7 @@ import {
   Param,
   Patch,
   Post,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import { BookingsService } from './bookings.service';
@@ -49,6 +50,11 @@ export class BookingsController {
   @Patch(':id/cancel')
   cancel(@Param('id') id: string, @CurrentUser() user: any) {
     return this.bookingsService.cancel(id, user);
+  }
+
+  @Patch(':id/check-in')
+  checkIn(@Param('id') id: string, @CurrentUser() user: any) {
+    return this.bookingsService.checkIn(id, user);
   }
 }
 

@@ -6,5 +6,10 @@ export class CreateBookingDto {
   start_time: Date | string;
   end_time: Date | string;
   status?: BookingStatus;
+  is_walk_in?: boolean;
+  guest_name?: string;
+  guest_phone?: string;
+  amount?: number;
+  currency?: string;
 }
 

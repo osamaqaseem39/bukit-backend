@@ -56,6 +56,27 @@ export class Booking {
   })
   status: BookingStatus;
 
+  @Column({ type: 'boolean', default: false })
+  is_walk_in: boolean;
+
+  @Column({ type: 'varchar', length: 255, nullable: true })
+  guest_name: string | null;
+
+  @Column({ type: 'varchar', length: 50, nullable: true })
+  guest_phone: string | null;
+
+  @Column({ type: 'numeric', nullable: true })
+  amount: number | null;
+
+  @Column({ type: 'varchar', length: 10, nullable: true })
+  currency: string | null;
+
+  @Column({ type: 'timestamptz', nullable: true })
+  checked_in_at: Date | null;
+
+  @Column({ type: 'varchar', length: 50, nullable: true })
+  check_in_status: string | null;
+
   @CreateDateColumn()
   created_at: Date;
 
