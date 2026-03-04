@@ -38,7 +38,10 @@ export class BookingsService {
 
     // Non-admins can only book their own locations (via client) or any public location?
     // For now, enforce that CLIENT can only book their own locations; USER can book any.
-    if (user.role === UserRole.CLIENT && location.client_id !== user.id) {
+    if (
+      user.role === UserRole.CLIENT &&
+      location.client?.user_id !== user.id
+    ) {
       throw new ForbiddenException(
         'You can only create bookings for your own locations',
       );

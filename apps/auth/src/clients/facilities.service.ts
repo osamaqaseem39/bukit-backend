@@ -1,7 +1,11 @@
-import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  ForbiddenException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Facility } from './facility.entity';
+import { Facility, FacilityType } from './facility.entity';
 import { CreateFacilityDto } from './dto/create-facility.dto';
 import { UpdateFacilityDto } from './dto/update-facility.dto';
 import { LocationsService } from './locations.service';
@@ -42,6 +46,7 @@ export class FacilitiesService {
   async findAllForLocation(
     locationId: string,
     user: { id: string; role: UserRole },
+    type?: FacilityType,
   ): Promise<Facility[]> {
     const location = await this.locationsService.findOne(locationId);
 
@@ -55,7 +60,10 @@ export class FacilitiesService {
     }
 
     return await this.facilityRepository.find({
-      where: { location_id: locationId },
+      where: {
+        location_id: locationId,
+        ...(type ? { type } : {}),
+      },
     });
   }
 
