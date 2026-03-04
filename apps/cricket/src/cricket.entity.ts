@@ -67,6 +67,15 @@ export class CricketGround {
   @Column({ type: 'int', default: 1 })
   number_of_pitches: number;
 
+  @Column({ type: 'decimal', precision: 10, scale: 2, nullable: true })
+  length_meters: number | null;
+
+  @Column({ type: 'decimal', precision: 10, scale: 2, nullable: true })
+  width_meters: number | null;
+
+  @Column({ type: 'decimal', precision: 10, scale: 2, nullable: true })
+  height_meters: number | null;
+
   @Column({ type: 'jsonb', nullable: true })
   amenities: string[];
 

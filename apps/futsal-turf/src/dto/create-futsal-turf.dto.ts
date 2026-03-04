@@ -10,6 +10,7 @@ import {
   IsEnum,
   IsUUID,
   IsInt,
+  IsPositive,
 } from 'class-validator';
 import { Type } from 'class-transformer';
 import { FutsalTurfStatus } from '../futsal-turf.entity';
@@ -109,4 +110,19 @@ export class CreateFutsalTurfDto {
   @IsNumber()
   @Min(0)
   hourly_rate?: number;
+
+  @IsOptional()
+  @IsNumber()
+  @IsPositive()
+  length_meters?: number;
+
+  @IsOptional()
+  @IsNumber()
+  @IsPositive()
+  width_meters?: number;
+
+  @IsOptional()
+  @IsNumber()
+  @IsPositive()
+  height_meters?: number;
 }
