@@ -1035,7 +1035,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"client_id\": \"{{clientId}}\",\n  \"name\": \"Futsal Turf Facility Name\"\n}"
+              "raw": "{\n  \"client_id\": \"{{clientId}}\",\n  \"name\": \"Futsal Turf Facility Name\",\n  \"length_meters\": 40,\n  \"width_meters\": 20,\n  \"height_meters\": 4.5\n}"
             },
             "url": {
               "raw": "{{base_url}}/futsal-turf",
@@ -1145,7 +1145,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"client_id\": \"{{clientId}}\",\n  \"name\": \"Cricket Facility Name\"\n}"
+              "raw": "{\n  \"client_id\": \"{{clientId}}\",\n  \"name\": \"Cricket Facility Name\",\n  \"length_meters\": 20.12,\n  \"width_meters\": 3.05,\n  \"height_meters\": 3\n}"
             },
             "url": {
               "raw": "{{base_url}}/cricket",
