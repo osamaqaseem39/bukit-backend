@@ -22,7 +22,10 @@ export class FacilitiesService {
   ): Promise<Facility> {
     const location = await this.locationsService.findOne(locationId);
 
-    if (user.role === UserRole.CLIENT && location.client_id !== user.id) {
+    if (
+      user.role === UserRole.CLIENT &&
+      location.client?.user_id !== user.id
+    ) {
       throw new ForbiddenException(
         'You can only create facilities for your own locations',
       );
@@ -42,7 +45,10 @@ export class FacilitiesService {
   ): Promise<Facility[]> {
     const location = await this.locationsService.findOne(locationId);
 
-    if (user.role === UserRole.CLIENT && location.client_id !== user.id) {
+    if (
+      user.role === UserRole.CLIENT &&
+      location.client?.user_id !== user.id
+    ) {
       throw new ForbiddenException(
         'You can only view facilities for your own locations',
       );
@@ -70,7 +76,10 @@ export class FacilitiesService {
 
     const location = await this.locationsService.findOne(locationId);
 
-    if (user.role === UserRole.CLIENT && location.client_id !== user.id) {
+    if (
+      user.role === UserRole.CLIENT &&
+      location.client?.user_id !== user.id
+    ) {
       throw new ForbiddenException(
         'You can only access facilities for your own locations',
       );
