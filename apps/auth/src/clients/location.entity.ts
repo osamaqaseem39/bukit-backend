@@ -53,7 +53,6 @@ export class Location {
     enum: FacilityType,
     array: true,
     nullable: true,
-    default: () => 'ARRAY[]::text[]',
   })
   facility_types: FacilityType[];
 
