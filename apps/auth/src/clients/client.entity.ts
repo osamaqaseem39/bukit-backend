@@ -66,12 +66,6 @@ export class Client {
   @Column({ nullable: true })
   postal_code: string;
 
-  @Column({ type: 'decimal', precision: 11, scale: 8, nullable: true })
-  latitude: number;
-
-  @Column({ type: 'decimal', precision: 12, scale: 8, nullable: true })
-  longitude: number;
-
   @Column({
     type: 'enum',
     enum: ClientStatus,

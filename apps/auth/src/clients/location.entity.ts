@@ -8,6 +8,7 @@ import {
   JoinColumn,
 } from 'typeorm';
 import { Client } from './client.entity';
+import { FacilityType } from './facility.entity';
 
 @Entity('locations')
 export class Location {
@@ -46,6 +47,15 @@ export class Location {
 
   @Column({ nullable: true })
   postal_code: string;
+
+  @Column({
+    type: 'enum',
+    enum: FacilityType,
+    array: true,
+    nullable: true,
+    default: () => 'ARRAY[]::text[]',
+  })
+  facility_types: FacilityType[];
 
   @Column({ type: 'decimal', precision: 11, scale: 8, nullable: true })
   latitude: number;

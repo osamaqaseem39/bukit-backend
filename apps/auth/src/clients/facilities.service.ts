@@ -29,7 +29,7 @@ export class FacilitiesService {
     if (
       user.role === UserRole.CLIENT &&
       location.client?.user_id !== user.id
-    ) {
+    ) { 
       throw new ForbiddenException(
         'You can only create facilities for your own locations',
       );

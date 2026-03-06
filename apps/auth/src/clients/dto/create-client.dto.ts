@@ -3,11 +3,8 @@ import {
   IsEmail,
   IsOptional,
   IsEnum,
-  IsNumber,
   IsObject,
   ValidateNested,
-  Min,
-  Max,
   IsPhoneNumber,
 } from 'class-validator';
 import { Type } from 'class-transformer';
@@ -93,18 +90,6 @@ export class CreateClientDto {
   @IsOptional()
   @IsString()
   postal_code?: string;
-
-  @IsOptional()
-  @IsNumber()
-  @Min(-90)
-  @Max(90)
-  latitude?: number;
-
-  @IsOptional()
-  @IsNumber()
-  @Min(-180)
-  @Max(180)
-  longitude?: number;
 
   @IsOptional()
   @IsString()

@@ -5,7 +5,9 @@ import {
   IsUUID,
   Min,
   Max,
+  IsEnum,
 } from 'class-validator';
+import { FacilityType } from '../facility.entity';
 
 export class CreateLocationDto {
   @IsUUID()
@@ -53,4 +55,8 @@ export class CreateLocationDto {
   @Min(-180)
   @Max(180)
   longitude?: number;
+
+  @IsOptional()
+  @IsEnum(FacilityType, { each: true })
+  facility_types?: FacilityType[];
 }
