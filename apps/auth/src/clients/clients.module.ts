@@ -9,15 +9,22 @@ import { LocationsController } from './locations.controller';
 import { Facility } from './facility.entity';
 import { FacilitiesService } from './facilities.service';
 import { FacilitiesController } from './facilities.controller';
+import { LocationRequest } from './location-request.entity';
+import { LocationRequestsService } from './location-requests.service';
 import { UsersModule } from '../users/users.module';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Client, Location, Facility]),
+    TypeOrmModule.forFeature([Client, Location, Facility, LocationRequest]),
     UsersModule,
   ],
   controllers: [ClientsController, LocationsController, FacilitiesController],
-  providers: [ClientsService, LocationsService, FacilitiesService],
+  providers: [
+    ClientsService,
+    LocationsService,
+    FacilitiesService,
+    LocationRequestsService,
+  ],
   exports: [ClientsService, LocationsService, FacilitiesService],
 })
 export class ClientsModule {}

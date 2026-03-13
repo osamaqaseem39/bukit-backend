@@ -58,9 +58,6 @@ export class Facility {
   })
   status: FacilityStatus;
 
-  @Column({ type: 'int', nullable: true })
-  capacity: number | null;
-
   @Column({ type: 'simple-json', nullable: true })
   metadata: Record<string, any> | null;
 

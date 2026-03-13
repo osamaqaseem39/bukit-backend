@@ -36,14 +36,23 @@ export class BookingsService {
 
     const location = await this.locationsService.findOne(location_id);
 
-    // Non-admins can only book their own locations (via client) or any public location?
-    // For now, enforce that CLIENT can only book their own locations; USER can book any.
+    // CLIENT can only book their own locations
     if (
       user.role === UserRole.CLIENT &&
       location.client?.user_id !== user.id
     ) {
       throw new ForbiddenException(
         'You can only create bookings for your own locations',
+      );
+    }
+
+    // LOCATION_MANAGER can only book for their assigned location
+    if (
+      user.role === UserRole.LOCATION_MANAGER &&
+      (user as any).managed_location_id !== location_id
+    ) {
+      throw new ForbiddenException(
+        'You can only create bookings for your assigned location',
       );
     }
 
@@ -81,6 +90,13 @@ export class BookingsService {
       return await this.bookingRepository.find();
     }
 
+    // LOCATION_MANAGER sees all bookings for their assigned location
+    if (user.role === UserRole.LOCATION_MANAGER) {
+      return await this.bookingRepository.find({
+        where: { location_id: (user as any).managed_location_id },
+      });
+    }
+
     // Non-admins see only their own bookings
     return await this.bookingRepository.find({
       where: { user_id: user.id },
@@ -94,7 +110,21 @@ export class BookingsService {
       throw new NotFoundException(`Booking with ID ${id} not found`);
     }
 
-    if (user.role !== UserRole.ADMIN && booking.user_id !== user.id) {
+    // ADMIN can access any booking
+    if (user.role === UserRole.ADMIN) {
+      return booking;
+    }
+
+    // LOCATION_MANAGER can access bookings for their assigned location
+    if (
+      user.role === UserRole.LOCATION_MANAGER &&
+      booking.location_id === (user as any).managed_location_id
+    ) {
+      return booking;
+    }
+
+    // Other users can only access their own bookings
+    if (booking.user_id !== user.id) {
       throw new ForbiddenException('You can only access your own bookings');
     }
 
@@ -159,7 +189,13 @@ export class BookingsService {
       .where('booking.start_time >= :startOfDay', { startOfDay })
       .andWhere('booking.start_time <= :endOfDay', { endOfDay });
 
-    if (user.role !== UserRole.ADMIN) {
+    if (user.role === UserRole.ADMIN) {
+      // no additional filter
+    } else if (user.role === UserRole.LOCATION_MANAGER) {
+      qb.andWhere('booking.location_id = :locationId', {
+        locationId: (user as any).managed_location_id,
+      });
+    } else {
       qb.andWhere('booking.user_id = :userId', { userId: user.id });
     }
 
@@ -236,7 +272,13 @@ export class BookingsService {
         cancelled: BookingStatus.CANCELLED,
       });
 
-    if (user.role !== UserRole.ADMIN) {
+    if (user.role === UserRole.ADMIN) {
+      // no additional filter
+    } else if (user.role === UserRole.LOCATION_MANAGER) {
+      qb.andWhere('booking.location_id = :locationIdUser', {
+        locationIdUser: (user as any).managed_location_id,
+      });
+    } else {
       qb.andWhere('booking.user_id = :userId', { userId: user.id });
     }
 

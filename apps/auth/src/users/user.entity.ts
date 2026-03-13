@@ -8,12 +8,14 @@ import {
   OneToMany,
   JoinColumn,
 } from 'typeorm';
+import { Location } from '../clients/location.entity';
 
 export enum UserRole {
   SUPER_ADMIN = 'super_admin',
   ADMIN = 'admin',
   CLIENT = 'client',
   USER = 'user',
+  LOCATION_MANAGER = 'location_manager',
 }
 
 /**
@@ -28,6 +30,7 @@ export type UserDashboardModule =
   | 'gaming'
   | 'snooker'
   | 'table-tennis'
+  | 'arena'
   | 'cricket'
   | 'futsal-turf'
   | 'padel'
@@ -72,6 +75,19 @@ export class User {
   /** Users that belong to this user's domain (when this user is a client admin). */
   @OneToMany(() => User, (u) => u.parent)
   child_users?: User[];
+
+  /**
+   * Optional FK to the single location this user manages.
+   *
+   * - Used when role is LOCATION_MANAGER.
+   * - Null for other roles.
+   */
+  @Column({ type: 'uuid', name: 'managed_location_id', nullable: true })
+  managed_location_id?: string | null;
+
+  @ManyToOne(() => Location, { nullable: true, onDelete: 'SET NULL' })
+  @JoinColumn({ name: 'managed_location_id' })
+  managed_location?: Location | null;
 
   /**
    * Optional list of dashboard modules that this user is allowed to see.

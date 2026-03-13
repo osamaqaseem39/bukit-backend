@@ -38,33 +38,6 @@
         "tsConfigPath": "apps/gaming/tsconfig.app.json"
       }
     },
-    "cricket": {
-      "type": "application",
-      "root": "apps/cricket",
-      "entryFile": "main",
-      "sourceRoot": "apps/cricket/src",
-      "compilerOptions": {
-        "tsConfigPath": "apps/cricket/tsconfig.app.json"
-      }
-    },
-    "futsal-turf": {
-      "type": "application",
-      "root": "apps/futsal-turf",
-      "entryFile": "main",
-      "sourceRoot": "apps/futsal-turf/src",
-      "compilerOptions": {
-        "tsConfigPath": "apps/futsal-turf/tsconfig.app.json"
-      }
-    },
-    "padel": {
-      "type": "application",
-      "root": "apps/padel",
-      "entryFile": "main",
-      "sourceRoot": "apps/padel/src",
-      "compilerOptions": {
-        "tsConfigPath": "apps/padel/tsconfig.app.json"
-      }
-    },
     "snooker": {
       "type": "application",
       "root": "apps/snooker",

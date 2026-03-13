@@ -26,12 +26,23 @@ export class FacilitiesService {
   ): Promise<Facility> {
     const location = await this.locationsService.findOne(locationId);
 
+    // CLIENT can only create facilities for their own locations
     if (
       user.role === UserRole.CLIENT &&
       location.client?.user_id !== user.id
-    ) { 
+    ) {
       throw new ForbiddenException(
         'You can only create facilities for your own locations',
+      );
+    }
+
+    // LOCATION_MANAGER can only create facilities for their assigned location
+    if (
+      user.role === UserRole.LOCATION_MANAGER &&
+      (user as any).managed_location_id !== locationId
+    ) {
+      throw new ForbiddenException(
+        'You can only create facilities for your assigned location',
       );
     }
 
@@ -50,12 +61,23 @@ export class FacilitiesService {
   ): Promise<Facility[]> {
     const location = await this.locationsService.findOne(locationId);
 
+    // CLIENT can only read facilities for their own locations
     if (
       user.role === UserRole.CLIENT &&
       location.client?.user_id !== user.id
     ) {
       throw new ForbiddenException(
         'You can only view facilities for your own locations',
+      );
+    }
+
+    // LOCATION_MANAGER can only read facilities for their assigned location
+    if (
+      user.role === UserRole.LOCATION_MANAGER &&
+      (user as any).managed_location_id !== locationId
+    ) {
+      throw new ForbiddenException(
+        'You can only view facilities for your assigned location',
       );
     }
 
@@ -84,12 +106,23 @@ export class FacilitiesService {
 
     const location = await this.locationsService.findOne(locationId);
 
+    // CLIENT can only access facilities for their own locations
     if (
       user.role === UserRole.CLIENT &&
       location.client?.user_id !== user.id
     ) {
       throw new ForbiddenException(
         'You can only access facilities for your own locations',
+      );
+    }
+
+    // LOCATION_MANAGER can only access facilities for their assigned location
+    if (
+      user.role === UserRole.LOCATION_MANAGER &&
+      (user as any).managed_location_id !== locationId
+    ) {
+      throw new ForbiddenException(
+        'You can only access facilities for your assigned location',
       );
     }
 

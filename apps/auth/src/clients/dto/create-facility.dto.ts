@@ -13,11 +13,6 @@ export class CreateFacilityDto {
   status?: FacilityStatus;
 
   @IsOptional()
-  @IsInt()
-  @Min(0)
-  capacity?: number;
-
-  @IsOptional()
   @IsObject()
   metadata?: Record<string, any>;
 }
