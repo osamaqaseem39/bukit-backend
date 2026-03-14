@@ -5,6 +5,7 @@ import {
   MinLength,
   IsEnum,
   IsOptional,
+  IsUUID,
 } from 'class-validator';
 import { UserRole } from '../user.entity';
 
@@ -23,4 +24,9 @@ export class CreateUserDto {
   @IsOptional()
   @IsEnum(UserRole)
   role?: UserRole;
+
+  /** Required when role is location_manager: the location this user will manage (must belong to the client when created by client). */
+  @IsOptional()
+  @IsUUID()
+  managed_location_id?: string;
 }

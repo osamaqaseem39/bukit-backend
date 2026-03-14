@@ -17,7 +17,7 @@ export class UsersService {
     clientId?: string | null,
     options?: { requiresPasswordChange?: boolean },
   ): Promise<User> {
-    const { email, password, name, role } = createUserDto;
+    const { email, password, name, role, managed_location_id } = createUserDto;
 
     try {
       console.log(`[UsersService] Creating user with email: ${email}`);
@@ -42,6 +42,7 @@ export class UsersService {
         password_hash,
         role: role || UserRole.USER,
         client_id: clientId || null,
+        managed_location_id: role === UserRole.LOCATION_MANAGER ? managed_location_id ?? null : null,
         requires_password_change: options?.requiresPasswordChange ?? false,
       });
 
@@ -197,6 +198,7 @@ export class UsersService {
     modules?: User['modules'] | null,
     requesterId?: string,
     requesterRole?: string,
+    managed_location_id?: string | null,
   ): Promise<Omit<User, 'password_hash'>> {
     const user = await this.findOne(id);
     if (!user) {
@@ -220,6 +222,11 @@ export class UsersService {
     }
     if (modules !== undefined) {
       user.modules = modules && modules.length > 0 ? modules : null;
+    }
+    if (role !== undefined && role !== UserRole.LOCATION_MANAGER) {
+      user.managed_location_id = null;
+    } else if (managed_location_id !== undefined && user.role === UserRole.LOCATION_MANAGER) {
+      user.managed_location_id = managed_location_id ?? null;
     }
 
     const saved = await this.usersRepository.save(user);

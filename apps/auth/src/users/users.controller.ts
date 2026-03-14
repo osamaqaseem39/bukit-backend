@@ -10,6 +10,8 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
+import { ClientsService } from '../clients/clients.service';
+import { LocationsService } from '../clients/locations.service';
 import { JwtAuthGuard } from '../guards/jwt-auth.guard';
 import { RolesGuard } from '../guards/roles.guard';
 import { Roles } from '../decorators/roles.decorator';
@@ -21,7 +23,11 @@ import { CreateUserDto } from './dto/create-user.dto';
 @Controller('users')
 @UseGuards(JwtAuthGuard, RolesGuard)
 export class UsersController {
-  constructor(private readonly usersService: UsersService) {}
+  constructor(
+    private readonly usersService: UsersService,
+    private readonly clientsService: ClientsService,
+    private readonly locationsService: LocationsService,
+  ) {}
 
   /**
    * List users based on requester's role:
@@ -76,6 +82,21 @@ export class UsersController {
     if (requesterRole === 'client' && (createUserDto.role === UserRole.SUPER_ADMIN || createUserDto.role === UserRole.ADMIN)) {
       throw new BadRequestException('You cannot create admin users');
     }
+
+    // When client creates a location_manager, validate managed_location_id belongs to their business
+    if (requesterRole === 'client' && createUserDto.role === UserRole.LOCATION_MANAGER) {
+      if (!createUserDto.managed_location_id) {
+        throw new BadRequestException('Location is required when creating a Location manager');
+      }
+      const client = await this.clientsService.findByUserId(requesterId);
+      if (!client) {
+        throw new BadRequestException('Client profile not found');
+      }
+      const location = await this.locationsService.findOne(createUserDto.managed_location_id);
+      if (!location || location.client_id !== client.id) {
+        throw new BadRequestException('Location must belong to your business');
+      }
+    }
     
     const user = await this.usersService.create(createUserDto, clientId);
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -123,12 +144,24 @@ export class UsersController {
   ) {
     const requesterId = req.user.userId || req.user.id;
     const requesterRole = req.user.role;
+    let managed_location_id = updateUserRoleDto.managed_location_id;
+    if (requesterRole === 'client' && managed_location_id != null) {
+      const client = await this.clientsService.findByUserId(requesterId);
+      if (!client) {
+        throw new BadRequestException('Client profile not found');
+      }
+      const location = await this.locationsService.findOne(managed_location_id);
+      if (!location || location.client_id !== client.id) {
+        throw new BadRequestException('Location must belong to your business');
+      }
+    }
     return this.usersService.updateRoleAndModules(
       id,
       updateUserRoleDto.role,
       updateUserRoleDto.modules,
       requesterId,
       requesterRole,
+      managed_location_id,
     );
   }
 
