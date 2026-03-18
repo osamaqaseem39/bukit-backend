@@ -6,6 +6,7 @@ import {
   UpdateDateColumn,
   ManyToOne,
   JoinColumn,
+  Index,
 } from 'typeorm';
 import { User } from '../users/user.entity';
 import { Location } from '../clients/location.entity';
@@ -18,6 +19,7 @@ export enum BookingStatus {
 }
 
 @Entity('bookings')
+@Index('idx_bookings_facility_time', ['facility_id', 'start_time', 'end_time'])
 export class Booking {
   @PrimaryGeneratedColumn('uuid')
   id: string;

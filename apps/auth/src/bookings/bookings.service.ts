@@ -7,12 +7,19 @@ import { UpdateBookingDto } from './dto/update-booking.dto';
 import { LocationsService } from '../clients/locations.service';
 import { FacilitiesService } from '../clients/facilities.service';
 import { UserRole } from '../users/user.entity';
+import { Facility, FacilityStatus } from '../clients/facility.entity';
+import { Location } from '../clients/location.entity';
+import { SearchAvailabilityDto } from './dto/search-availability.dto';
 
 @Injectable()
 export class BookingsService {
   constructor(
     @InjectRepository(Booking)
     private readonly bookingRepository: Repository<Booking>,
+    @InjectRepository(Facility)
+    private readonly facilityRepository: Repository<Facility>,
+    @InjectRepository(Location)
+    private readonly locationRepository: Repository<Location>,
     private readonly locationsService: LocationsService,
     private readonly facilitiesService: FacilitiesService,
   ) {}
@@ -318,6 +325,73 @@ export class BookingsService {
       walk_ins: Number(row.walk_ins),
       revenue: row.revenue !== null ? Number(row.revenue) : null,
     }));
+  }
+
+  async searchAvailability(
+    params: SearchAvailabilityDto,
+  ): Promise<
+    {
+      location: Location;
+      available_facilities: Facility[];
+    }[]
+  > {
+    const { city, facility_type, start_time, end_time } = params;
+
+    const start = new Date(start_time);
+    const end = new Date(end_time);
+
+    const qb = this.facilityRepository
+      .createQueryBuilder('facility')
+      .innerJoinAndSelect('facility.location', 'location')
+      .where('facility.status = :activeStatus', {
+        activeStatus: FacilityStatus.ACTIVE,
+      });
+
+    if (city) {
+      qb.andWhere('location.city = :city', { city });
+    }
+
+    if (facility_type) {
+      qb.andWhere('facility.type = :facilityType', {
+        facilityType: facility_type,
+      });
+    }
+
+    qb.andWhere((subQb) => {
+      const subQuery = subQb
+        .subQuery()
+        .select('1')
+        .from(Booking, 'b')
+        .where('b.facility_id = facility.id')
+        .andWhere('b.status IN (:...activeStatuses)', {
+          activeStatuses: [BookingStatus.PENDING, BookingStatus.CONFIRMED],
+        })
+        .andWhere('b.start_time < :end', { end })
+        .andWhere('b.end_time > :start', { start })
+        .getQuery();
+
+      return `NOT EXISTS ${subQuery}`;
+    });
+
+    const facilities = await qb.getMany();
+
+    const locationsMap = new Map<
+      string,
+      { location: Location; available_facilities: Facility[] }
+    >();
+
+    for (const facility of facilities) {
+      const location = facility.location;
+      if (!locationsMap.has(location.id)) {
+        locationsMap.set(location.id, {
+          location,
+          available_facilities: [],
+        });
+      }
+      locationsMap.get(location.id)!.available_facilities.push(facility);
+    }
+
+    return Array.from(locationsMap.values());
   }
 }
 

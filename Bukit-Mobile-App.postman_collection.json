@@ -1,0 +1,402 @@
+{
+  "info": {
+    "name": "Bukit Mobile App API (auth service)",
+    "_postman_id": "bukit-mobile-app-api-collection",
+    "description": "Postman collection for the Bukit auth service (apps/auth). Defaults to local dev at http://localhost:3001.\n\nAuth: Bearer token is automatically stored after login/refresh into collection variable {{token}}.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "base_url", "value": "http://localhost:3001" },
+    { "key": "token", "value": "" },
+    { "key": "refresh_token", "value": "" },
+    { "key": "clientId", "value": "" },
+    { "key": "locationId", "value": "" },
+    { "key": "facilityId", "value": "" },
+    { "key": "bookingId", "value": "" },
+    { "key": "userId", "value": "" },
+    { "key": "facilityType", "value": "" },
+    { "key": "city", "value": "" },
+    { "key": "start_time", "value": "2026-01-01T10:00:00.000Z" },
+    { "key": "end_time", "value": "2026-01-01T11:00:00.000Z" },
+    { "key": "date", "value": "2026-01-01" },
+    { "key": "from", "value": "2026-01-01" },
+    { "key": "to", "value": "2026-01-31" }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }]
+  },
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "POST /auth/login",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@example.com\",\n  \"password\": \"password\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/login",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "login"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "let json = {};",
+                  "try { json = pm.response.json(); } catch (e) {}",
+                  "if (json && json.access_token) pm.collectionVariables.set('token', json.access_token);",
+                  "if (json && json.refresh_token) pm.collectionVariables.set('refresh_token', json.refresh_token);",
+                  "pm.test('Login succeeded', function () {",
+                  "  pm.expect(pm.response.code).to.be.oneOf([200, 201]);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "POST /auth/refresh",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refresh_token\": \"{{refresh_token}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/refresh",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "refresh"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "let json = {};",
+                  "try { json = pm.response.json(); } catch (e) {}",
+                  "if (json && json.access_token) pm.collectionVariables.set('token', json.access_token);",
+                  "pm.test('Refresh responded', function () {",
+                  "  pm.expect(pm.response.code).to.be.oneOf([200, 201, 401]);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "GET /auth/profile",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/auth/profile",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "profile"]
+            }
+          }
+        },
+        {
+          "name": "POST /auth/change-password",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"current_password\": \"password\",\n  \"new_password\": \"password2\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/change-password",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "change-password"]
+            }
+          }
+        },
+        {
+          "name": "POST /auth/logout",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"refresh_token\": \"{{refresh_token}}\"\n}" },
+            "url": {
+              "raw": "{{base_url}}/auth/logout",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "logout"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Locations",
+      "item": [
+        {
+          "name": "GET /locations",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/locations",
+              "host": ["{{base_url}}"],
+              "path": ["locations"]
+            }
+          }
+        },
+        {
+          "name": "GET /locations?clientId=:clientId",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/locations?clientId={{clientId}}",
+              "host": ["{{base_url}}"],
+              "path": ["locations"],
+              "query": [{ "key": "clientId", "value": "{{clientId}}" }]
+            }
+          }
+        },
+        {
+          "name": "GET /locations/:id",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/locations/{{locationId}}",
+              "host": ["{{base_url}}"],
+              "path": ["locations", "{{locationId}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Facilities",
+      "item": [
+        {
+          "name": "GET /locations/:locationId/facilities",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/locations/{{locationId}}/facilities",
+              "host": ["{{base_url}}"],
+              "path": ["locations", "{{locationId}}", "facilities"]
+            }
+          }
+        },
+        {
+          "name": "GET /locations/:locationId/facilities?type=:type",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/locations/{{locationId}}/facilities?type={{facilityType}}",
+              "host": ["{{base_url}}"],
+              "path": ["locations", "{{locationId}}", "facilities"],
+              "query": [{ "key": "type", "value": "{{facilityType}}" }]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Search",
+      "item": [
+        {
+          "name": "GET /search/availability",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/search/availability?city={{city}}&facility_type={{facilityType}}&start_time={{start_time}}&end_time={{end_time}}",
+              "host": ["{{base_url}}"],
+              "path": ["search", "availability"],
+              "query": [
+                { "key": "city", "value": "{{city}}" },
+                { "key": "facility_type", "value": "{{facilityType}}" },
+                { "key": "start_time", "value": "{{start_time}}" },
+                { "key": "end_time", "value": "{{end_time}}" }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Bookings",
+      "item": [
+        {
+          "name": "GET /bookings",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/bookings",
+              "host": ["{{base_url}}"],
+              "path": ["bookings"]
+            }
+          }
+        },
+        {
+          "name": "POST /bookings (walk-in, with package pricing)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"location_id\": \"{{locationId}}\",\n  \"facility_id\": \"{{facilityId}}\",\n  \"start_time\": \"2026-01-01T10:00:00.000Z\",\n  \"end_time\": \"2026-01-01T11:00:00.000Z\",\n  \"status\": \"confirmed\",\n  \"is_walk_in\": true,\n  \"guest_name\": \"Walk-in Guest\",\n  \"guest_phone\": \"+971500000000\",\n  \"amount\": 60,\n  \"currency\": \"AED\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/bookings",
+              "host": ["{{base_url}}"],
+              "path": ["bookings"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "let json = {};",
+                  "try { json = pm.response.json(); } catch (e) {}",
+                  "if (json && json.id) pm.collectionVariables.set('bookingId', json.id);",
+                  "pm.test('Booking created', function () {",
+                  "  pm.expect(pm.response.code).to.be.oneOf([200, 201]);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "GET /bookings/:id",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/bookings/{{bookingId}}",
+              "host": ["{{base_url}}"],
+              "path": ["bookings", "{{bookingId}}"]
+            }
+          }
+        },
+        {
+          "name": "PATCH /bookings/:id",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"start_time\": \"2026-01-01T12:00:00.000Z\",\n  \"end_time\": \"2026-01-01T13:00:00.000Z\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/bookings/{{bookingId}}",
+              "host": ["{{base_url}}"],
+              "path": ["bookings", "{{bookingId}}"]
+            }
+          }
+        },
+        {
+          "name": "PATCH /bookings/:id/cancel",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/bookings/{{bookingId}}/cancel",
+              "host": ["{{base_url}}"],
+              "path": ["bookings", "{{bookingId}}", "cancel"]
+            }
+          }
+        },
+        {
+          "name": "PATCH /bookings/:id/check-in",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/bookings/{{bookingId}}/check-in",
+              "host": ["{{base_url}}"],
+              "path": ["bookings", "{{bookingId}}", "check-in"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Ledger & Reports",
+      "item": [
+        {
+          "name": "GET /ledger/daily",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/ledger/daily?date={{date}}&location_id={{locationId}}&facility_id={{facilityId}}",
+              "host": ["{{base_url}}"],
+              "path": ["ledger", "daily"],
+              "query": [
+                { "key": "date", "value": "{{date}}" },
+                { "key": "location_id", "value": "{{locationId}}" },
+                { "key": "facility_id", "value": "{{facilityId}}" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "GET /reports/bookings",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/reports/bookings?from={{from}}&to={{to}}&location_id={{locationId}}&facility_id={{facilityId}}",
+              "host": ["{{base_url}}"],
+              "path": ["reports", "bookings"],
+              "query": [
+                { "key": "from", "value": "{{from}}" },
+                { "key": "to", "value": "{{to}}" },
+                { "key": "location_id", "value": "{{locationId}}" },
+                { "key": "facility_id", "value": "{{facilityId}}" }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Upload",
+      "item": [
+        {
+          "name": "POST /auth/upload (multipart)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "file", "type": "file", "src": [] }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/upload",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "upload"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
+
