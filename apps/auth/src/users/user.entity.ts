@@ -27,10 +27,6 @@ export enum UserRole {
  */
 export type UserDashboardModule =
   | 'dashboard-overview'
-  | 'gaming'
-  | 'snooker'
-  | 'table-tennis'
-  | 'arena'
   | 'cricket'
   | 'futsal-turf'
   | 'padel'

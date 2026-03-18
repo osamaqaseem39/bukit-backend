@@ -35,7 +35,7 @@ export class FacilitiesController {
   }
 
   @Get()
-  @Roles(UserRole.ADMIN, UserRole.CLIENT)
+  @Roles(UserRole.ADMIN, UserRole.CLIENT, UserRole.LOCATION_MANAGER)
   findAll(
     @Param('locationId') locationId: string,
     @Query('type') type: FacilityType | undefined,
@@ -45,7 +45,7 @@ export class FacilitiesController {
   }
 
   @Get(':id')
-  @Roles(UserRole.ADMIN, UserRole.CLIENT)
+  @Roles(UserRole.ADMIN, UserRole.CLIENT, UserRole.LOCATION_MANAGER)
   findOne(
     @Param('locationId') locationId: string,
     @Param('id') id: string,

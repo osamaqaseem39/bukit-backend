@@ -188,10 +188,6 @@ export class AppController {
                   <span class="endpoint-path">GET /auth/*</span>
                   <span class="endpoint-desc">Auth service proxy</span>
                 </div>
-                <div class="endpoint">
-                  <span class="endpoint-path">GET /gaming/*</span>
-                  <span class="endpoint-desc">Gaming service proxy</span>
-                </div>
               </div>
             </div>
           </div>

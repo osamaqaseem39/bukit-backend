@@ -45,7 +45,6 @@ async function bootstrap() {
     const server = cachedApp.getHttpAdapter().getInstance();
 
     const authTarget = process.env.AUTH_SERVICE_URL;
-    const gamingTarget = process.env.GAMING_SERVICE_URL;
 
     // Only proxy auth routes if AUTH_SERVICE_URL is explicitly set and not localhost
     // Otherwise, AuthModule handles routes directly
@@ -78,35 +77,6 @@ async function bootstrap() {
     } else {
       console.log(
         'AuthModule imported directly - auth routes handled by NestJS (no proxy)',
-      );
-    }
-
-    // Only proxy gaming routes if GAMING_SERVICE_URL is explicitly set and not localhost
-    if (
-      gamingTarget &&
-      !gamingTarget.includes('localhost') &&
-      !gamingTarget.includes('127.0.0.1')
-    ) {
-      console.log(`Proxying gaming routes to external service: ${gamingTarget}`);
-      server.use(
-        ['/gaming'],
-        createProxyMiddleware({
-          target: gamingTarget,
-          changeOrigin: true,
-          pathRewrite: {},
-          timeout: 50000,
-          proxyTimeout: 50000,
-          onError: (err, req, res) => {
-            console.error('Proxy error:', err.message);
-            if (!res.headersSent) {
-              res.status(502).json({
-                error: 'Bad Gateway',
-                message: 'Unable to connect to gaming service',
-                target: gamingTarget,
-              });
-            }
-          },
-        } as any), // Type assertion needed as @types/http-proxy-middleware doesn't include onError
       );
     }
 

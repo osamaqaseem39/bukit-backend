@@ -28,33 +28,6 @@
       "compilerOptions": {
         "tsConfigPath": "apps/api/tsconfig.app.json"
       }
-    },
-    "gaming": {
-      "type": "application",
-      "root": "apps/gaming",
-      "entryFile": "main",
-      "sourceRoot": "apps/gaming/src",
-      "compilerOptions": {
-        "tsConfigPath": "apps/gaming/tsconfig.app.json"
-      }
-    },
-    "snooker": {
-      "type": "application",
-      "root": "apps/snooker",
-      "entryFile": "main",
-      "sourceRoot": "apps/snooker/src",
-      "compilerOptions": {
-        "tsConfigPath": "apps/snooker/tsconfig.app.json"
-      }
-    },
-    "table-tennis": {
-      "type": "application",
-      "root": "apps/table-tennis",
-      "entryFile": "main",
-      "sourceRoot": "apps/table-tennis/src",
-      "compilerOptions": {
-        "tsConfigPath": "apps/table-tennis/tsconfig.app.json"
-      }
     }
   }
 }
