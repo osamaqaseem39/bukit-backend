@@ -491,7 +491,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"Gaming PC #1\",\n  \"type\": \"gaming-pc\",\n  \"status\": \"active\",\n  \"capacity\": 1,\n  \"metadata\": {\n    \"specs\": \"RTX 4070, 32GB RAM\"\n  }\n}"
+              "raw": "{\n  \"name\": \"Gaming PC #1\",\n  \"type\": \"gaming-pc\",\n  \"status\": \"active\",\n  \"metadata\": {\n    \"specs\": \"RTX 4070, 32GB RAM\"\n  }\n}"
             },
             "url": {
               "raw": "{{base_url}}/locations/{{locationId}}/facilities",

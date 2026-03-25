@@ -34,6 +34,13 @@ export type UserDashboardModule =
   | 'users'
   | 'bookings'
   | 'analytics'
+  | 'ledger'
+  | 'arena-bookings'
+  | 'arena-analytics'
+  | 'arena-ledger'
+  | 'gaming-zone-bookings'
+  | 'gaming-zone-analytics'
+  | 'gaming-zone-ledger'
   | 'settings';
 
 @Entity('users')

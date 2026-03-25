@@ -20,6 +20,7 @@ export enum BookingStatus {
 
 @Entity('bookings')
 @Index('idx_bookings_facility_time', ['facility_id', 'start_time', 'end_time'])
+@Index('idx_bookings_facility_unit_time', ['facility_id', 'unit_index', 'start_time', 'end_time'])
 export class Booking {
   @PrimaryGeneratedColumn('uuid')
   id: string;
@@ -44,6 +45,9 @@ export class Booking {
   @ManyToOne(() => Facility, { nullable: true })
   @JoinColumn({ name: 'facility_id' })
   facility: Facility | null;
+
+  @Column({ type: 'int', nullable: true })
+  unit_index: number | null;
 
   @Column({ type: 'timestamptz' })
   start_time: Date;

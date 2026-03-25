@@ -1,6 +1,11 @@
-import { Injectable, ForbiddenException, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  BadRequestException,
+  ForbiddenException,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Brackets, Repository } from 'typeorm';
 import { Booking, BookingStatus } from './booking.entity';
 import { CreateBookingDto } from './dto/create-booking.dto';
 import { UpdateBookingDto } from './dto/update-booking.dto';
@@ -39,6 +44,7 @@ export class BookingsService {
       guest_phone,
       amount,
       currency,
+      unit_index,
     } = createBookingDto;
 
     const location = await this.locationsService.findOne(location_id);
@@ -63,6 +69,7 @@ export class BookingsService {
       );
     }
 
+    let resolvedUnitIndex: number | null = null;
     if (facility_id) {
       // Ensure facility belongs to the same location
       const facility = await this.facilitiesService.findOneForLocation(
@@ -73,12 +80,99 @@ export class BookingsService {
       if (!facility) {
         throw new NotFoundException('Facility not found for this location');
       }
+
+      const facilityMeta = (facility.metadata || {}) as Record<string, any>;
+      const isArena =
+        facility.type === 'futsal-field' ||
+        facility.type === 'cricket-pitch' ||
+        facility.type === 'padel-court';
+      const isGaming =
+        facility.type === 'gaming-pc' ||
+        facility.type === 'ps4' ||
+        facility.type === 'ps5' ||
+        facility.type === 'xbox';
+      const courtMode = facilityMeta?.court_size_mode;
+
+      if (
+        unit_index !== undefined &&
+        (!Number.isInteger(unit_index) || unit_index < 0)
+      ) {
+        throw new BadRequestException('unit_index must be a non-negative integer');
+      }
+
+      const unitIndexProvided = unit_index !== undefined;
+      const supportsUnitIndex =
+        (isArena && courtMode === 'split-two') || isGaming;
+      const applyUnitConflict = supportsUnitIndex && unitIndexProvided;
+
+      // Unit inventory mapping:
+      // - Arena split-two: unit_index maps to courts (0 or 1)
+      // - Gaming facilities: unit_index maps to PCs/stations
+      // - All other facilities: treat as single inventory unit (unit_index = 0)
+      if (supportsUnitIndex) {
+        // If unit_index wasn't provided, treat this booking as a whole-facility
+        // inventory booking to avoid overbooking (e.g. quick-book flows).
+        resolvedUnitIndex = unitIndexProvided ? unit_index ?? 0 : null;
+
+        if (
+          isArena &&
+          courtMode === 'split-two' &&
+          resolvedUnitIndex != null &&
+          resolvedUnitIndex > 1
+        ) {
+          throw new BadRequestException(
+            'unit_index must be 0 or 1 for split-two arena facilities',
+          );
+        }
+      } else {
+        resolvedUnitIndex = 0;
+      }
+
+      const start = new Date(start_time);
+      const end = new Date(end_time);
+      if (Number.isNaN(start.getTime()) || Number.isNaN(end.getTime())) {
+        throw new BadRequestException('Invalid booking time window');
+      }
+      if (end.getTime() <= start.getTime()) {
+        throw new BadRequestException('end_time must be after start_time');
+      }
+
+      const overlapQb = this.bookingRepository
+        .createQueryBuilder('booking')
+        .where('booking.facility_id = :facilityId', { facilityId: facility_id })
+        .andWhere('booking.status IN (:...activeStatuses)', {
+          activeStatuses: [BookingStatus.PENDING, BookingStatus.CONFIRMED],
+        })
+        .andWhere('booking.start_time < :end', { end })
+        .andWhere('booking.end_time > :start', { start });
+
+      if (applyUnitConflict) {
+        overlapQb.andWhere(
+          new Brackets((qb) => {
+            qb.where('booking.unit_index = :unitIndex', {
+              unitIndex: resolvedUnitIndex,
+            }).orWhere('booking.unit_index IS NULL');
+          }),
+        );
+      }
+
+      const overlapping = await overlapQb.getOne();
+      if (overlapping) {
+        throw new BadRequestException(
+          isArena && courtMode === 'split-two' && applyUnitConflict
+            ? 'Selected court already has a booking in this time slot'
+            : isGaming && applyUnitConflict
+              ? 'Selected unit already has a booking in this time slot'
+              : 'Facility already has a booking in this time slot',
+        );
+      }
     }
 
     const booking = this.bookingRepository.create({
       user_id: user.id,
       location_id,
       facility_id: facility_id || null,
+      unit_index: resolvedUnitIndex,
       start_time: new Date(start_time),
       end_time: new Date(end_time),
       status: status || BookingStatus.PENDING,
