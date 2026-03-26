@@ -58,7 +58,7 @@ export class UsersController {
       throw new BadRequestException('User not found');
     }
     // Check permissions
-    if (!this.usersService.canAccessUser(requesterId, requesterRole, id, user.client_id)) {
+    if (!this.usersService.canAccessUser(requesterId, requesterRole, id, user.clientAdminUserId)) {
       throw new BadRequestException('You do not have permission to access this user');
     }
     return this.usersService.findOneSafe(id);
@@ -85,14 +85,14 @@ export class UsersController {
 
     // When client creates a location_manager, validate managed_location_id belongs to their business
     if (requesterRole === 'client' && createUserDto.role === UserRole.LOCATION_MANAGER) {
-      if (!createUserDto.managed_location_id) {
+      if (!createUserDto.managedLocationId) {
         throw new BadRequestException('Location is required when creating a Location manager');
       }
       const client = await this.clientsService.findByUserId(requesterId);
       if (!client) {
         throw new BadRequestException('Client profile not found');
       }
-      const location = await this.locationsService.findOne(createUserDto.managed_location_id);
+      const location = await this.locationsService.findOne(createUserDto.managedLocationId);
       if (!location || location.client_id !== client.id) {
         throw new BadRequestException('Location must belong to your business');
       }
@@ -124,7 +124,7 @@ export class UsersController {
       throw new BadRequestException('User not found');
     }
     // Check permissions
-    if (!this.usersService.canAccessUser(requesterId, requesterRole, id, user.client_id)) {
+    if (!this.usersService.canAccessUser(requesterId, requesterRole, id, user.clientAdminUserId)) {
       throw new BadRequestException('You do not have permission to update this user');
     }
     return this.usersService.updateModules(id, updateUserModulesDto.modules);
@@ -144,13 +144,13 @@ export class UsersController {
   ) {
     const requesterId = req.user.userId || req.user.id;
     const requesterRole = req.user.role;
-    let managed_location_id = updateUserRoleDto.managed_location_id;
-    if (requesterRole === 'client' && managed_location_id != null) {
+    let managedLocationId = updateUserRoleDto.managedLocationId;
+    if (requesterRole === 'client' && managedLocationId != null) {
       const client = await this.clientsService.findByUserId(requesterId);
       if (!client) {
         throw new BadRequestException('Client profile not found');
       }
-      const location = await this.locationsService.findOne(managed_location_id);
+      const location = await this.locationsService.findOne(managedLocationId);
       if (!location || location.client_id !== client.id) {
         throw new BadRequestException('Location must belong to your business');
       }
@@ -161,7 +161,7 @@ export class UsersController {
       updateUserRoleDto.modules,
       requesterId,
       requesterRole,
-      managed_location_id,
+      managedLocationId,
     );
   }
 
@@ -188,7 +188,7 @@ export class UsersController {
       throw new BadRequestException('User not found');
     }
     // Check permissions
-    if (!this.usersService.canAccessUser(requesterId, requesterRole, id, user.client_id)) {
+    if (!this.usersService.canAccessUser(requesterId, requesterRole, id, user.clientAdminUserId)) {
       throw new BadRequestException('You do not have permission to update this user');
     }
     return this.usersService.updatePassword(id, password);

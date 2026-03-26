@@ -28,5 +28,5 @@ export class CreateUserDto {
   /** Required when role is location_manager: the location this user will manage (must belong to the client when created by client). */
   @IsOptional()
   @IsUUID()
-  managed_location_id?: string;
+  managedLocationId?: string;
 }

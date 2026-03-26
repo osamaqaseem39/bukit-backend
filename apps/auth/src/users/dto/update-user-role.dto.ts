@@ -10,5 +10,5 @@ export class UpdateUserRoleDto extends UpdateUserModulesDto {
   /** When role is location_manager, set the location this user manages. Omit or set null to clear. */
   @IsOptional()
   @IsUUID()
-  managed_location_id?: string | null;
+  managedLocationId?: string | null;
 }

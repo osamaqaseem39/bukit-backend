@@ -17,7 +17,7 @@ export class UsersService {
     clientId?: string | null,
     options?: { requiresPasswordChange?: boolean },
   ): Promise<User> {
-    const { email, password, name, role, managed_location_id } = createUserDto;
+    const { email, password, name, role, managedLocationId } = createUserDto;
 
     try {
       console.log(`[UsersService] Creating user with email: ${email}`);
@@ -41,8 +41,11 @@ export class UsersService {
         email,
         password_hash,
         role: role || UserRole.USER,
-        client_id: clientId || null,
-        managed_location_id: role === UserRole.LOCATION_MANAGER ? managed_location_id ?? null : null,
+        clientAdminUserId: clientId || null,
+        managedLocationId:
+          role === UserRole.LOCATION_MANAGER
+            ? managedLocationId ?? null
+            : null,
         requires_password_change: options?.requiresPasswordChange ?? false,
       });
 
@@ -84,7 +87,7 @@ export class UsersService {
     // Client admin sees only users in their domain
     if (requesterRole === 'client' && requesterId) {
       return this.usersRepository.find({
-        where: { client_id: requesterId },
+        where: { clientAdminUserId: requesterId },
       });
     }
     // Regular admin sees all
@@ -198,7 +201,7 @@ export class UsersService {
     modules?: User['modules'] | null,
     requesterId?: string,
     requesterRole?: string,
-    managed_location_id?: string | null,
+    managedLocationId?: string | null,
   ): Promise<Omit<User, 'password_hash'>> {
     const user = await this.findOne(id);
     if (!user) {
@@ -208,7 +211,7 @@ export class UsersService {
     // Check permissions
     if (requesterRole === 'client' && requesterId) {
       // Client admin can only update users in their domain
-      if (user.client_id !== requesterId) {
+      if (user.clientAdminUserId !== requesterId) {
         throw new ForbiddenException('You can only update users in your domain');
       }
       // Client admin cannot create super admins or regular admins
@@ -224,9 +227,9 @@ export class UsersService {
       user.modules = modules && modules.length > 0 ? modules : null;
     }
     if (role !== undefined && role !== UserRole.LOCATION_MANAGER) {
-      user.managed_location_id = null;
-    } else if (managed_location_id !== undefined && user.role === UserRole.LOCATION_MANAGER) {
-      user.managed_location_id = managed_location_id ?? null;
+      user.managedLocationId = null;
+    } else if (managedLocationId !== undefined && user.role === UserRole.LOCATION_MANAGER) {
+      user.managedLocationId = managedLocationId ?? null;
     }
 
     const saved = await this.usersRepository.save(user);
@@ -260,14 +263,14 @@ export class UsersService {
   }
 
   /**
-   * Update a user's client_id (internal use).
+   * Update a user's client_admin_user_id (internal use).
    */
   async updateUserClientId(userId: string, clientId: string | null): Promise<User> {
     const user = await this.findOne(userId);
     if (!user) {
       throw new NotFoundException('User not found');
     }
-    user.client_id = clientId;
+    user.clientAdminUserId = clientId;
     return this.usersRepository.save(user);
   }
 }

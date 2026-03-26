@@ -68,7 +68,7 @@ export class User {
    * - For super admins and regular admins: null
    */
   @Column({ name: 'client_id', nullable: true })
-  client_id?: string | null;
+  clientAdminUserId?: string | null;
 
   /** Parent user (client admin) this user belongs to. Self-join on users table. */
   @ManyToOne(() => User, (u) => u.child_users, { onDelete: 'SET NULL' })
@@ -86,7 +86,7 @@ export class User {
    * - Null for other roles.
    */
   @Column({ type: 'uuid', name: 'managed_location_id', nullable: true })
-  managed_location_id?: string | null;
+  managedLocationId?: string | null;
 
   @ManyToOne(() => Location, { nullable: true, onDelete: 'SET NULL' })
   @JoinColumn({ name: 'managed_location_id' })

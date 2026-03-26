@@ -56,8 +56,8 @@ export class AuthService {
       email: user.email,
       sub: user.id,
       role: user.role,
-      client_id: user.client_id ?? null,
-      managed_location_id: (user as any).managed_location_id ?? null,
+      client_id: user.clientAdminUserId ?? null,
+      managed_location_id: (user as any).managedLocationId ?? null,
     };
     const accessToken = this.jwtService.sign(payload);
     const refreshToken = await this.createRefreshToken(user);
@@ -149,8 +149,8 @@ export class AuthService {
       email: existing.user.email,
       sub: existing.user.id,
       role: existing.user.role,
-      client_id: existing.user.client_id ?? null,
-      managed_location_id: (existing.user as any).managed_location_id ?? null,
+      client_id: existing.user.clientAdminUserId ?? null,
+      managed_location_id: (existing.user as any).managedLocationId ?? null,
     };
 
     const accessToken = this.jwtService.sign(payload);
